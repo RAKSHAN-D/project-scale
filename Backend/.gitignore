@@ -80,3 +80,9 @@ Desktop.ini
 # ── Logs ──────────────────────────────────────
 *.log
 logs/
+# Ignore only config files
+Backend/src/main/resources/application*.yaml
+
+# Allow other resources
+!Backend/src/main/resources/static/
+!Backend/src/main/resources/templates/
