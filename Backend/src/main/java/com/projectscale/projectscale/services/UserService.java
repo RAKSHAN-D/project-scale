@@ -33,7 +33,7 @@ public class UserService {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
         String rawPassword = request.getPassword().trim();
-
+        String userRole = "USER"; // Default role
         if (repo.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists.");
         }
@@ -48,7 +48,7 @@ public class UserService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
-
+        
         return toUserResponse(repo.save(user));
     }
 
@@ -70,7 +70,7 @@ public class UserService {
         if (updatedUser.getUsername() != null && !updatedUser.getUsername().trim().isEmpty()) {
             String normalizedUsername = updatedUser.getUsername().trim().toLowerCase();
             if (isExistingUsername(normalizedUsername, id)) {
-                throw new IllegalArgumentException("Username already exists.");
+                throw new IllegalArgumentException("Username already exists."); 
             }
             user.setUsername(normalizedUsername);
         }
@@ -117,4 +117,6 @@ public class UserService {
                 .map(existing -> !existing.getId().equals(currentUserId))
                 .orElse(false);
     }
+
+    
 }
