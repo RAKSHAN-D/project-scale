@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface HotItemRepository extends JpaRepository<HotItem, Long> {
     Optional<HotItem> findByItemKey(String itemKey);
+    boolean existsByItemKey(String itemKey);
 }
