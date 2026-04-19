@@ -17,9 +17,9 @@ public class HotItem {
     private String itemKey;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(nullable = false, columnDefinition = "jsonb")
-    private String value;
-
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> value;
+    
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt = OffsetDateTime.now();
 
