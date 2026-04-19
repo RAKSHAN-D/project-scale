@@ -6,15 +6,15 @@ import com.projectscale.projectscale.entity.ColdItem;
 import com.projectscale.projectscale.repository.ColdItemRepository;
 
 @Service
-public class ColdDataService {
+public class ColdItemService {
     private final ColdItemRepository coldItemRepository;
     private final UserRepository userRepository;
-    public ColdDataService(ColdItemRepository coldItemRepository, UserRepository userRepository) {
+    public ColdItemService(ColdItemRepository coldItemRepository, UserRepository userRepository) {
         this.coldItemRepository = coldItemRepository;   // Constructor injection of the repository
         this.userRepository = userRepository;   // Constructor injection of the user repository
     }
      @PreAuthorize("hasRole('ADMIN')")
-public ColdDataResponse addColdData(ColdDataRequest request) {
+public ColdItemResponse addColdData(ColdItemRequest request) {
 
     // 1. Basic Validation
     if (request.getUserId() == null ||
@@ -54,22 +54,22 @@ public ColdDataResponse addColdData(ColdDataRequest request) {
 }
 
 @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-public List<ColdDataResponse> getColdDataForUser(Long userId) {
+public List<ColdItemResponse> getColdDataForUser(Long userId) {
  if (userRepository.findById(userId).isEmpty())
  { throw new RuntimeException("User not found");} 
   
  List<ColdItem> coldItems = coldItemRepository.findByUser_Id(userId);
- return coldItems.stream().map(ColdDataResponse::new).toList();
+ return coldItems.stream().map(ColdItemResponse::new).toList();
 }
 
 @PreAuthorize("hasRole('ADMIN')")
-public List<ColdDataResponse> getAllColdData() {
+public List<ColdItemResponse> getAllColdData() {
     List<ColdItem> coldItems = coldItemRepository.findAll();
-    return coldItems.stream().map(ColdDataResponse::new).toList();
+    return coldItems.stream().map(ColdItemResponse::new).toList();
 } 
 
 @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-public void updateColdData(Long id, ColdDataRequest request) {
+public void updateColdData(Long id, ColdItemRequest request) {
     if (userRepository.findById(userId).isEmpty()) {
         throw new RuntimeException("User not found");
     }
@@ -85,8 +85,8 @@ public void deleteColdDataForUser(Long userId) {
     }
     coldItemRepository.deleteByUser_Id(userId);
 }
-public coldataResponse toColdDataResponse(ColdItem item) {
-    ColdDataResponse response = new ColdDataResponse();
+public ColdItemResponse toColdDataResponse(ColdItem item) {
+    ColdItemResponse response = new ColdItemResponse();
     response.setId(item.getId());
     response.setUserId(item.getUser().getId());
     response.setType(item.getType().name());

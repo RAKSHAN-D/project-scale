@@ -1,6 +1,6 @@
 package com.projectscale.projectscale.dto;
 
-public class ColdDataResponse {
+public class ColdItemResponse {
     private Long id;
     private String data;
     public Long getId() {

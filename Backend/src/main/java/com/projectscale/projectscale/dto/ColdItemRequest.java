@@ -1,7 +1,7 @@
 package com.projectscale.projectscale.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-public class ColdDataRequest {
+public class ColdItemRequest {
    @NotNull
     private Long userId;
     @NotBlank
