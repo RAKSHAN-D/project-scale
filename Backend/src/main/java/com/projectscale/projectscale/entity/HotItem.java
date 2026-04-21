@@ -21,6 +21,7 @@ public class HotItem {
     private Map<String, Object> value;
     
     @Column(name = "updated_at", nullable = false)
+    @PreUpdate
     private OffsetDateTime updatedAt = OffsetDateTime.now();
 
     public Long getId() { return id; }
@@ -29,8 +30,8 @@ public class HotItem {
     public String getItemKey() { return itemKey; }
     public void setItemKey(String itemKey) { this.itemKey = itemKey; }
 
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
+    public Map<String, Object> getValue() { return value; }
+    public void setValue(Map<String, Object> value) { this.value = value; }
 
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
