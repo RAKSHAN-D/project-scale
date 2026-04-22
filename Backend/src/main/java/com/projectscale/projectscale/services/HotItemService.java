@@ -111,7 +111,5 @@ public class HotItemService {
     //  Convert to Response DTO and return
     return toHotItemResponse(savedHotItem);
 }
-
-
 }
 
