@@ -61,7 +61,7 @@ public class HotItemService {
         HotItem hotItem = hotItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hot item not found"));
         return toHotItemResponse(hotItem);
-    }
+    }                      
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id" )
     public void deleteHotItem(Long id) {
         if (!hotItemRepository.existsById(id)) {
@@ -69,11 +69,48 @@ public class HotItemService {
         }
         hotItemRepository.deleteById(id);
      }
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
-    public void deleteAllHotItems() {
-        hotItemRepository.deleteAll();
-    }   
+    @PreAuthorize("hasRole('ADMIN')")
+    public HotItemResponse updateHotItem(Long id, HotItemRequest request) {
 
+    //  Fetch existing item from DB
+    // If not found → throw error
+    HotItem hotItem = hotItemRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Hot item not found"));
+
+    //  Handle itemKey update (PATCH style → only update if provided)
+    if (request.getItemKey() != null && !request.getItemKey().trim().isEmpty()) {
+
+        // Normalize once (avoid multiple trim calls)
+        String newKey = request.getItemKey().trim();
+        String currentKey = hotItem.getItemKey();
+
+        //  Only proceed if key is actually changing
+        if (!newKey.equals(currentKey)) {
+
+            //  Check if new key already exists in DB
+            // (Prevents duplicate key violation)
+            if (hotItemRepository.existsByItemKey(newKey)) {
+                throw new IllegalArgumentException("An item with this key already exists.");
+            }
+
+            //  Update key
+            hotItem.setItemKey(newKey);
+        }
+        // If same → do nothing (no exception needed)
+    }
+
+    //  Handle value update (independent of itemKey)
+    if (request.getValue() != null) {
+        hotItem.setValue(request.getValue());
+    }
+
+    //  Save updated entity
+    // Always use returned entity (best practice)
+    HotItem savedHotItem = hotItemRepository.save(hotItem);
+
+    //  Convert to Response DTO and return
+    return toHotItemResponse(savedHotItem);
+}
 
 
 }
