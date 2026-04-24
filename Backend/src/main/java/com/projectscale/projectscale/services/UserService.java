@@ -1,4 +1,4 @@
-package com.projectscale.services;
+package com.projectscale.projectscale.services;
 
 import java.util.List;
 
