@@ -1,17 +1,23 @@
 spring:
   application:
     name: project-scale
+
+  profiles:
+    active: local   
+
   datasource:
     url: jdbc:postgresql://localhost:5432/project_scale
     username: postgres
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
   hikari:
     maximum-pool-size: 10
     minimum-idle: 2
     connection-timeout: 30000
     idle-timeout: 600000
     max-lifetime: 1800000
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -20,5 +26,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+
 server:
   port: 8080
