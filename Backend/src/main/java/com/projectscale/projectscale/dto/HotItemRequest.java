@@ -1,11 +1,12 @@
 package com.projectscale.projectscale.dto;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.Map;
 
 public class HotItemRequest {
     @NotBlank
     private String itemKey;
-   @NotNull
+    @NotNull
     private Map<String, Object> value;
 
     public String getItemKey() {
@@ -14,10 +15,10 @@ public class HotItemRequest {
     public void setItemKey(String itemKey) {
         this.itemKey = itemKey;
     }
-    public String getValue() {
+    public Map<String, Object> getValue() {
         return value;
     }
-    public void setValue(String value) {
+    public void setValue(Map<String, Object> value) {
         this.value = value;
     }
 }
