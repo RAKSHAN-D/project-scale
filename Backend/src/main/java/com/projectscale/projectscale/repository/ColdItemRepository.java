@@ -41,3 +41,4 @@ public interface ColdItemRepository extends JpaRepository<ColdItem, Long> {
         return new ColdDataResponse(item);
     }
 }
+*/
