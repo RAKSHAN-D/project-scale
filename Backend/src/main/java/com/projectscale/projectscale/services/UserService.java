@@ -33,7 +33,7 @@ public class UserService {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
         String rawPassword = request.getPassword().trim();
-        String userRole = "USER"; // Default role
+        String userRole = "SECOND_CLASS"; // Default role
         if (repo.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists.");
         }
