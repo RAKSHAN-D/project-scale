@@ -1,24 +1,27 @@
 package com.projectscale.projectscale.services;
 
-import com.projectscale.projectscale.entity.User;
-import com.projectscale.projectscale.entity.UserRole;
-import com.projectscale.projectscale.dto.CreateUserRequest;
-import com.projectscale.projectscale.dto.UserResponse;
+import com.projectscale.projectscale.entity.*;
+import com.projectscale.projectscale.dto.*;
 import com.projectscale.projectscale.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.projectscale.projectscale.Auth.JwtUtil;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 @Service
 public class AuthService  {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final AuthenticationManager authManager;
+    private final JwtUtil jwtUtil;
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authManager, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authManager = authManager;
+        this.jwtUtil = jwtUtil;
     } 
-    public UserResponse registerUser(CreateUserRequest request) {
+    public UserResponse signup(SignupRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -39,6 +42,13 @@ public class AuthService  {
         response.setEmail(user.getEmail());
         response.setRole(user.getRole() != null ? user.getRole().name() : null);
         return response;
+    }
+
+    public String login(LoginRequest request) {
+       authManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+      User user = userRepository.findByUsername(request.getUsername())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+        return jwtUtil.generateToken(user);
     }
 
 }
