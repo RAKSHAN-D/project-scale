@@ -10,6 +10,7 @@ import com.projectscale.projectscale.dto.CreateUserRequest;
 import com.projectscale.projectscale.dto.UpdateUserRequest;
 import com.projectscale.projectscale.dto.UserResponse;
 import com.projectscale.projectscale.entity.User;
+import com.projectscale.projectscale.entity.UserRole;
 import com.projectscale.projectscale.repository.UserRepository;
 
 @Service
@@ -33,7 +34,7 @@ public class UserService {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
         String rawPassword = request.getPassword().trim();
-        String userRole = "SECOND_CLASS"; // Default role
+        UserRole userRole = UserRole.SECOND_CLASS; // Default role
         if (repo.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists.");
         }
