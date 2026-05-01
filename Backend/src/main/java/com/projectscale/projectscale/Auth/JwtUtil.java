@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
-import jakarta.annotation.PostConstruct; // PostConstruct is used to perform initialization after the bean's properties have been set. In this case, it initializes the JWT signing key based on the secret value from the application properties.
+import jakarta.annotation.PostConstruct; // PostConstruct is used to perform initialization after the bean's properties have been set. 
+// In this case, it initializes the JWT signing key based on the secret value from the application properties.
 
 @Component
 public class JwtUtil {
