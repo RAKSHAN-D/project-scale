@@ -1,11 +1,9 @@
 package com.projectscale.projectscale.services;
 
 import java.util.List;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.projectscale.projectscale.dto.CreateUserRequest;
 import com.projectscale.projectscale.dto.UpdateUserRequest;
 import com.projectscale.projectscale.dto.UserResponse;
