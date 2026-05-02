@@ -51,4 +51,10 @@ public class AuthService  {
         return jwtUtil.generateToken(user);
     }
 
+    public String logout() {
+        // Add any additional logout logic here
+        // Invalidate the token on the client side (e.g., remove it from local storage)
+        return "Logged out successfully";
+    }
+
 }
