@@ -4,9 +4,7 @@ import com.projectscale.projectscale.dto.LoginRequest;
 import com.projectscale.projectscale.dto.SignupRequest;
 import com.projectscale.projectscale.dto.UserResponse;
 import com.projectscale.projectscale.services.AuthService;
-
 import jakarta.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +19,7 @@ public class AuthController {
         this.authService = authService;
     }
 
-    // 🔹 User Signup
+    //  User Signup
     @PostMapping("/signup")
     public ResponseEntity<UserResponse> signup(
             @Valid @RequestBody SignupRequest request) {
@@ -33,7 +31,7 @@ public class AuthController {
                 .body(response);
     }
 
-    // 🔹 User Login
+    //  User Login
     @PostMapping("/login")
     public ResponseEntity<String> login(
             @Valid @RequestBody LoginRequest request) {
@@ -43,7 +41,7 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    // 🔹 User Logout
+    //  User Logout
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
 
