@@ -155,7 +155,7 @@ Key metrics tracked:
 
 | Domain | Endpoints |
 |---|---|
-| Auth | `POST /api/auth/login`, `POST /api/auth/logout` |
+| Auth | `POST /api/auth/login`, `POST /api/auth/logout` | POST /api/auth/signup 
 | Users | `GET/POST/PUT/PATCH/DELETE /api/users` + bulk create |
 | Hot Items | Full CRUD — `GET/POST/PUT/PATCH/DELETE /api/hot-items` |
 | Cold Items | Full CRUD — `GET/POST/PUT/PATCH/DELETE /api/cold-items` |
