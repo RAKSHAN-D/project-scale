@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.projectscale.projectscale.Auth.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-@Service
+  @Service
 public class AuthService  {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
