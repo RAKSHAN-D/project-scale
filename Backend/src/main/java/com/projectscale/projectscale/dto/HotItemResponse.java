@@ -3,6 +3,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 public class HotItemResponse {
     private Long id;
+    private Long userId;
     private String itemKey;
     private Map<String, Object> value;
     private OffsetDateTime updatedAt;
@@ -11,6 +12,12 @@ public class HotItemResponse {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+    public Long getUserId() {
+        return userId;
+    }
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
     public String getItemKey() {
         return itemKey;

@@ -17,6 +17,10 @@ public class HotItem {
     @Column(name = "item_key", nullable = false, unique = true, length = 100)
     private String itemKey;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> value;
@@ -29,6 +33,9 @@ public class HotItem {
 
     public String getItemKey() { return itemKey; }
     public void setItemKey(String itemKey) { this.itemKey = itemKey; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public Map<String, Object> getValue() { return value; }
     public void setValue(Map<String, Object> value) { this.value = value; }

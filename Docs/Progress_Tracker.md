@@ -121,10 +121,10 @@ Before doing load testing, the local backend should be able to:
 | Item | Status | Notes |
 |---|---|---|
 | `HotItemController` | Built | Exposes `/api/hot-data` |
-| `HotItemService` | Built partially | CRUD logic exists |
-| `HotItemRepository` | Built | DB access exists |
-| `HotItemRequest` | Built | Request DTO exists |
-| `HotItemResponse` | Built | Response DTO exists |
+| `HotItemService` | Built | CRUD logic exists with admin/self-user authorization |
+| `HotItemRepository` | Built | DB access exists, includes user-owned lookup |
+| `HotItemRequest` | Built | Request DTO exists with `userId`, `itemKey`, and `value` |
+| `HotItemResponse` | Built | Response DTO includes owner `userId` |
 | Redis caching | Not started | Planned for later phase |
 
 ### Cold Data Module
@@ -195,6 +195,7 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 | Maven | Maven wrapper failed to start; global `mvn` not installed | Fixed |
 | DB schema | `ddl-auto: validate` requires existing matching tables | Partially verified |
 | DB enum mapping | `users.role` is PostgreSQL enum `user_role`, while Java enum was inserted as varchar | Fixed |
+| Hot data schema | `HotItem` now requires `hot_items.user_id` for ownership | Pending DB schema update |
 
 ---
 
@@ -232,12 +233,15 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 
 ### Step 4: Hot Data CRUD
 
+- [x] Add user ownership to hot items in Java code.
+- [ ] Add `user_id` column and FK to `hot_items` table.
 - [ ] Create hot item.
 - [ ] Get hot item by id.
 - [ ] Get all hot items.
+- [ ] Get hot items for a user.
 - [ ] Update hot item.
 - [ ] Delete hot item.
-- [ ] Verify role restrictions.
+- [ ] Verify admin/self-user restrictions.
 
 ### Step 5: Cold Data CRUD
 
@@ -335,3 +339,4 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 | 2026-10-08 | Fixed Maven wrapper startup and PostgreSQL enum mapping for `UserRole` |
 | 2026-10-08 | Verified `./mvnw.cmd test` passes successfully |
 | 2026-10-09 | Cleaned up user module DTO validation, default role assignment, and update authorization |
+| 2026-10-09 | Added HotItem user ownership and admin/self-user API flow; DB schema still needs `hot_items.user_id` |

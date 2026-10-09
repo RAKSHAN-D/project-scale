@@ -25,9 +25,19 @@ public class HotItemController {
         return ResponseEntity.ok(hotItemService.getAllHotItems());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<HotItemResponse>> getHotItemsForUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(hotItemService.getHotItemsForUser(userId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<HotItemResponse> getHotItemById(@PathVariable Long id) {
         return ResponseEntity.ok(hotItemService.getHotItemById(id));
+    }
+
+    @GetMapping("/user/{userId}/item/{id}")
+    public ResponseEntity<HotItemResponse> getHotItemForUser(@PathVariable Long userId, @PathVariable Long id) {
+        return ResponseEntity.ok(hotItemService.getHotItemForUser(userId, id));
     }
 
     @DeleteMapping("/{id}")
@@ -36,8 +46,22 @@ public class HotItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/user/{userId}/item/{id}")
+    public ResponseEntity<Void> deleteHotItemForUser(@PathVariable Long userId, @PathVariable Long id) {
+        hotItemService.deleteHotItem(userId, id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<HotItemResponse> updateHotItem(@PathVariable Long id, @RequestBody HotItemRequest request) {
         return ResponseEntity.ok(hotItemService.updateHotItem(id, request));
+    }
+
+    @PatchMapping("/user/{userId}/item/{id}")
+    public ResponseEntity<HotItemResponse> updateHotItemForUser(
+            @PathVariable Long userId,
+            @PathVariable Long id,
+            @RequestBody HotItemRequest request) {
+        return ResponseEntity.ok(hotItemService.updateHotItem(userId, id, request));
     }
 }
