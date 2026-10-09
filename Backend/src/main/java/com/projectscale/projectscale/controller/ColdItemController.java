@@ -21,9 +21,11 @@ public class ColdItemController {
     public ResponseEntity<List<ColdItemResponse>> getColdDataForUser(@PathVariable Long userId) {
         return ResponseEntity.ok(coldItemService.getColdDataForUser(userId));
     }
-    @GetMapping("item/{itemId}")
-    public ResponseEntity<ColdItemResponse> getColdDataForUserAndItem(@PathVariable Long itemId) {
-        return ResponseEntity.ok(coldItemService.getColdDataForUserAndItem(itemId));
+    @GetMapping("/user/{userId}/item/{itemId}")
+    public ResponseEntity<ColdItemResponse> getColdDataForUserAndItem(
+            @PathVariable Long userId,
+            @PathVariable Long itemId) {
+        return ResponseEntity.ok(coldItemService.getColdDataForUserAndItem(userId, itemId));
     }
     @GetMapping
     public ResponseEntity<List<ColdItemResponse>> getAllColdData() {
@@ -33,7 +35,7 @@ public class ColdItemController {
     public ResponseEntity<ColdItemResponse> updateColdData(@PathVariable Long id, @Valid @RequestBody ColdItemRequest request) {
         return ResponseEntity.ok(coldItemService.updateColdData(id, request));
     }
-    @DeleteMapping("item/{itemId}")
+    @DeleteMapping("/item/{itemId}")
     public ResponseEntity<Void> deleteColdData( @PathVariable Long itemId) {
         coldItemService.deleteColdData(itemId);
         return ResponseEntity.noContent().build();

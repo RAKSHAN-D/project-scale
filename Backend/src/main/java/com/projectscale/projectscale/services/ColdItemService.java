@@ -70,10 +70,13 @@ public class ColdItemService {
         return coldItems.stream().map(this::toColdDataResponse).toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public ColdItemResponse getColdDataForUserAndItem(Long itemId) {
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    public ColdItemResponse getColdDataForUserAndItem(Long userId, Long itemId) {
         ColdItem item = coldItemRepository.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Cold data item not found."));
+        if (!item.getUser().getId().equals(userId)) {
+            throw new RuntimeException("Cold data item does not belong to the specified user.");
+        }
         return toColdDataResponse(item);
     }
 
@@ -105,6 +108,9 @@ public class ColdItemService {
         ColdItemResponse response = new ColdItemResponse();
         response.setId(item.getId());
         response.setData(item.getPayload());
+        response.setType(item.getType().name());
+        response.setUserId(item.getUser().getId());
+        response.setCreatedAt(item.getCreatedAt());
         return response;
     }
 }
