@@ -5,8 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.projectscale.projectscale.dto.*;
 import com.projectscale.projectscale.services.UserService;
-
-
+import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -20,7 +19,10 @@ public class UserController {
     // ADMIN ONLY
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> createUser(
+            // @RequestBody converts the JSON request body into a CreateUserRequest object.
+            // @Valid checks validation annotations written inside CreateUserRequest.
+            @Valid @RequestBody CreateUserRequest request) {
         return ResponseEntity.status(201).body(userService.createUser(request));
     }
 
@@ -37,11 +39,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    //  ADMIN ONLY (for now)
+    //  ADMIN ONLY (for now) and also allow users to update their own information
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
-                                                   @RequestBody UpdateUserRequest updatedUser) {
+                                                   // @RequestBody converts the JSON request body into an UpdateUserRequest object.
+                                                   // @Valid checks validation annotations written inside UpdateUserRequest.
+                                                   @Valid @RequestBody UpdateUserRequest updatedUser) {
         return ResponseEntity.ok(userService.updateUser(id, updatedUser));
     }
 

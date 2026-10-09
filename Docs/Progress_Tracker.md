@@ -94,25 +94,27 @@ Before doing load testing, the local backend should be able to:
 
 | Item | Status | Notes |
 |---|---|---|
-| `AuthController` | Built partially | Has signup, login, logout endpoints |
-| `AuthService` | Built partially | Has signup/login/logout logic but needs fixes |
-| `JwtUtil` | Built partially | Generates and validates JWT |
-| `JwtAuthFilter` | Built partially | Reads bearer token and sets security context |
-| `CustomUserDetailsService` | Built partially | Loads user for Spring Security, but package mismatch exists |
-| `UserPrincipal` | Built partially | Intended to expose logged-in user id |
-| `AuthSecurityConfig` | Built partially | Configures stateless JWT security |
+| `AuthController` | Built | Has signup, login, logout endpoints |
+| `AuthService` | Built | Has signup/login/logout logic; signup/login DTO naming cleaned up |
+| `JwtUtil` | Built | Generates and validates JWT |
+| `JwtAuthFilter` | Built | Reads bearer token and sets security context |
+| `CustomUserDetailsService` | Built | Loads user for Spring Security |
+| `UserPrincipal` | Built | Exposes logged-in user id and authorities |
+| `AuthSecurityConfig` | Built | Configures stateless JWT security |
 | `MethodSecurityConfig` | Built | Enables `@PreAuthorize` |
-| `SeedAdmin` | Built partially | Intended to create admin, but has compile issues |
+| `SeedAdmin` | Built | Creates admin for local testing when missing |
 
 ### User Module
 
 | Item | Status | Notes |
 |---|---|---|
 | `UserController` | Built | Exposes `/api/users` endpoints |
-| `UserService` | Built partially | CRUD logic exists |
-| `CreateUserRequest` | Built | Request DTO exists |
-| `UpdateUserRequest` | Built | Request DTO exists |
+| `UserService` | Built | CRUD logic exists with default role assignment |
+| `CreateUserRequest` | Built | Request DTO exists with validation |
+| `UpdateUserRequest` | Built | Request DTO exists with optional-field validation |
 | `UserResponse` | Built | Response DTO exists |
+| `SignupResponse` | Built | Signup-specific response DTO exists |
+| `LoginResponse` | Built | Login token response DTO exists |
 
 ### Hot Data Module
 
@@ -182,16 +184,17 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 
 | Area | Issue | Status |
 |---|---|---|
-| Auth service | Uses `user.setPassword(...)`, but `User` has `setPasswordHash(...)` | Not fixed |
-| User principal | Uses `user.getPassword()`, but `User` has `getPasswordHash()` | Not fixed |
-| Package naming | `CustomUserDetailsService` uses uppercase `Auth` package | Not fixed |
-| Import naming | `AuthService` imports uppercase `Auth.JwtUtil` | Not fixed |
-| Security config | File name `AuthSecurityConfig.java` does not match public class `SecurityConfig` | Not fixed |
-| Admin seed | Uses `existsByemail`, but repository has `existsByEmail` | Not fixed |
-| Admin seed | Uses `User.Role.ADMIN`, but enum is `UserRole.ADMIN` | Not fixed |
-| JWT config | `jwt.secret` and `jwt.expiration` missing from YAML | Not fixed |
-| Maven | Maven wrapper failed to start; global `mvn` not installed | Not fixed |
-| DB schema | `ddl-auto: validate` requires existing matching tables | Not verified |
+| Auth service | Uses `user.setPassword(...)`, but `User` has `setPasswordHash(...)` | Fixed |
+| User principal | Uses `user.getPassword()`, but `User` has `getPasswordHash()` | Fixed |
+| Package naming | `CustomUserDetailsService` uses uppercase `Auth` package | Fixed |
+| Import naming | `AuthService` imports uppercase `Auth.JwtUtil` | Fixed |
+| Security config | File name `AuthSecurityConfig.java` does not match public class `SecurityConfig` | Fixed |
+| Admin seed | Uses `existsByemail`, but repository has `existsByEmail` | Fixed |
+| Admin seed | Uses `User.Role.ADMIN`, but enum is `UserRole.ADMIN` | Fixed |
+| JWT config | `jwt.secret` and `jwt.expiration` missing from YAML | Fixed |
+| Maven | Maven wrapper failed to start; global `mvn` not installed | Fixed |
+| DB schema | `ddl-auto: validate` requires existing matching tables | Partially verified |
+| DB enum mapping | `users.role` is PostgreSQL enum `user_role`, while Java enum was inserted as varchar | Fixed |
 
 ---
 
@@ -199,18 +202,18 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 
 ### Step 1: Make Backend Compile
 
-- [ ] Fix password field method mismatches.
-- [ ] Fix auth package casing.
-- [ ] Fix auth imports.
-- [ ] Fix security config class/file name mismatch.
-- [ ] Fix `SeedAdmin`.
-- [ ] Add missing JWT config values.
-- [ ] Confirm Maven wrapper or local Maven works.
-- [ ] Run compile/test successfully.
+- [x] Fix password field method mismatches.
+- [x] Fix auth package casing.
+- [x] Fix auth imports.
+- [x] Fix security config class/file name mismatch.
+- [x] Fix `SeedAdmin`.
+- [x] Add missing JWT config values.
+- [x] Confirm Maven wrapper or local Maven works.
+- [x] Run compile/test successfully.
 
 ### Step 2: Stabilize Auth
 
-- [ ] Confirm admin user is created or can be created.
+- [x] Confirm admin user is created or can be created.
 - [ ] Confirm `/auth/login` works.
 - [ ] Confirm JWT token is returned.
 - [ ] Confirm protected APIs reject requests without token.
@@ -327,3 +330,8 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 | Date | Update |
 |---|---|
 | 2026-10-07 | Created progress tracker from current project review |
+| 2026-10-08 | Fixed first auth-layer blockers for login and JWT request validation |
+| 2026-10-08 | Added `SignupResponse` for signup and `LoginResponse` for login token responses |
+| 2026-10-08 | Fixed Maven wrapper startup and PostgreSQL enum mapping for `UserRole` |
+| 2026-10-08 | Verified `./mvnw.cmd test` passes successfully |
+| 2026-10-09 | Cleaned up user module DTO validation, default role assignment, and update authorization |

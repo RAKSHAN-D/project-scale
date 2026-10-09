@@ -37,7 +37,11 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return getClaims(token).getSubject();
+        try {
+            return getClaims(token).getSubject();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
     public boolean validateToken(String token) {

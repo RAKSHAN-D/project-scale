@@ -1,8 +1,9 @@
 package com.projectscale.projectscale.controller;
 
 import com.projectscale.projectscale.dto.LoginRequest;
+import com.projectscale.projectscale.dto.LoginResponse;
 import com.projectscale.projectscale.dto.SignupRequest;
-import com.projectscale.projectscale.dto.UserResponse;
+import com.projectscale.projectscale.dto.SignupResponse;
 import com.projectscale.projectscale.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,10 @@ public class AuthController {
 
     //  User Signup
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> signup(
+    public ResponseEntity<SignupResponse> signup(
             @Valid @RequestBody SignupRequest request) {
 
-        UserResponse response = authService.signup(request);
+        SignupResponse response = authService.signup(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -33,12 +34,12 @@ public class AuthController {
 
     //  User Login
     @PostMapping("/login")
-    public ResponseEntity<String> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request) {
 
-        String token = authService.login(request);
+        LoginResponse response = authService.login(request);
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(response);
     }
 
     //  User Logout

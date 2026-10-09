@@ -192,7 +192,8 @@ Request DTOs:
 
 Response DTOs:
 
-- `AuthResponse`
+- `SignupResponse`
+- `LoginResponse`
 - `UserResponse`
 - `HotItemResponse`
 - `ColdItemResponse`

@@ -6,7 +6,6 @@ import jakarta.servlet.http.*; // HttpServletRequest, HttpServletResponse, acces
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder; // Storage Box for the current authenticated user details. It allows access to the security context, which holds the authentication and authorization information for the current user.
 import org.springframework.security.core.userdetails.UserDetails; // UserDetails is a core interface in Spring Security that represents the user details required for authentication and authorization. It provides methods to retrieve the username, password, authorities, and other user-related information.
-import org.springframework.security.core.userdetails.CustomUserDetailsService; // UserDetailsService is used to load user-specific data during authentication.Basically,  its DB access layer for authentication.
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;// Captures additional details about the authentication request, such as the remote IP address and session ID, and includes them in the authentication token.
 import org.springframework.stereotype.Component; // Component annotation is used to mark a class as a component in the Spring framework.
 import org.springframework.web.filter.OncePerRequestFilter; // OncePerRequestFilter ensures that the filter is executed only once per request, preventing multiple executions in case of internal forwards or includes.

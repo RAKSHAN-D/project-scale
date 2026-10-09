@@ -32,7 +32,6 @@ public class UserService {
         String username = request.getUsername().trim().toLowerCase();
         String email = request.getEmail().trim().toLowerCase();
         String rawPassword = request.getPassword().trim();
-        UserRole userRole = UserRole.SECOND_CLASS; // Default role
         if (repo.existsByUsername(username)) {
             throw new IllegalArgumentException("Username already exists.");
         }
@@ -47,7 +46,7 @@ public class UserService {
         user.setUsername(username);
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
-        
+        user.setRole(UserRole.SECOND_CLASS); // Default role
         return toUserResponse(repo.save(user));
     }
 

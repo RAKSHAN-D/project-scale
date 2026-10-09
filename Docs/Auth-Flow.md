@@ -2,81 +2,617 @@
 
 This document explains the authentication flow for Project Scale in simple terms.
 
-The project uses Spring Boot, Spring Security, JWT tokens, and role-based access control. The main idea is:
+There are three auth-related flows in this project:
 
-1. A user logs in with username and password.
-2. Spring Security verifies the credentials.
-3. If the credentials are correct, the backend creates a JWT token.
-4. The client sends that token in future requests.
-5. A JWT filter checks the token before protected APIs run.
-6. Spring Security stores the authenticated user for that request.
-7. Controllers and services use roles like `ADMIN` to allow or block access.
+```text
+1. Signup / account creation
+2. Login / JWT generation
+3. Protected request / JWT validation
+```
+
+Important mental model:
+
+```text
+Signup creates a user.
+Login verifies username/password and creates a JWT.
+JwtAuthFilter validates the JWT on every protected request.
+```
 
 ---
 
-## Simple Auth Flow
+## Main Auth Files
 
-In the simplest form, the flow looks like this:
+| File | Responsibility |
+|---|---|
+| `AuthController.java` | Exposes `/auth/signup`, `/auth/login`, `/auth/logout` |
+| `AuthService.java` | Contains signup, login, and logout logic |
+| `SignupRequest.java` | Request body for signup |
+| `SignupResponse.java` | Response body for signup |
+| `LoginRequest.java` | Request body for login |
+| `LoginResponse.java` | Response body for login token |
+| `User.java` | JPA entity mapped to `users` table |
+| `UserRole.java` | Defines roles such as `ADMIN` and `SECOND_CLASS` |
+| `UserRepository.java` | Reads/writes users from PostgreSQL |
+| `CustomUserDetailsService.java` | Loads user details from DB for Spring Security |
+| `UserPrincipal.java` | Represents the logged-in user inside Spring Security |
+| `JwtUtil.java` | Generates and validates JWT tokens |
+| `JwtAuthFilter.java` | Reads JWT from requests and authenticates the request |
+| `AuthSecurityConfig.java` | Defines Spring Security filter chain and route rules |
+| `MethodSecurityConfig.java` | Enables `@PreAuthorize` |
+| `SeedAdmin.java` | Creates a default admin user for local testing |
+
+---
+
+## Important Concepts
+
+### `AuthenticationManager`
+
+`AuthenticationManager` is a Spring Security component.
+
+Its job is to verify login credentials:
 
 ```text
-Login request
-    -> AuthController
-    -> AuthService
-    -> AuthenticationManager
-    -> CustomUserDetailsService
-    -> UserRepository
-    -> PostgreSQL users table
-    -> password check
-    -> JWT generated
-    -> token returned to client
+username + raw password
+    -> load user from DB
+    -> compare raw password with stored password hash
+    -> pass or fail authentication
 ```
 
-After login, the client calls protected APIs like this:
+It does not directly know your `users` table. To load users, it calls `CustomUserDetailsService`.
+
+### `CustomUserDetailsService`
+
+`CustomUserDetailsService` does not store user details.
+
+Its job is to load user details from the database whenever Spring Security asks for a user.
+
+It does this:
 
 ```text
-GET /api/users
+loadUserByUsername(username)
+    -> UserRepository.findByUsername(username)
+    -> create UserPrincipal
+    -> return UserPrincipal to Spring Security
+```
+
+This file is used in both:
+
+- login flow
+- JWT validation flow
+
+### `UserPrincipal`
+
+`UserPrincipal` is the Spring Security version of your `User`.
+
+It exposes:
+
+- user id
+- username
+- password hash
+- authorities/roles
+
+This matters because some authorization checks need the logged-in user's id:
+
+```java
+@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+```
+
+### `JwtUtil`
+
+`JwtUtil` has two main jobs:
+
+```text
+1. generateToken(user)
+2. validateToken(token)
+```
+
+It also extracts the username from the token:
+
+```text
+extractUsername(token)
+```
+
+### `JwtAuthFilter`
+
+`JwtAuthFilter` runs before controllers on protected requests.
+
+It reads:
+
+```http
 Authorization: Bearer <jwt-token>
 ```
 
-Then the request flow becomes:
-
-```text
-Request
-    -> JwtAuthFilter
-    -> JwtUtil validates token
-    -> CustomUserDetailsService loads user
-    -> SecurityContextHolder stores authenticated user
-    -> Controller
-    -> Service
-    -> @PreAuthorize role check
-    -> Repository
-    -> PostgreSQL
-```
+Then it validates the token and stores the authenticated user in Spring Security for that request.
 
 ---
 
-## Why JWT Is Used
+## Flow 1: Signup / Account Creation
 
-JWT means JSON Web Token.
+Purpose:
 
-Instead of storing login session data inside the Java server, the server gives the client a signed token. The token contains basic identity information like:
+```text
+Create a user account in the database.
+```
+
+This flow is related to auth, but it is not the same as login. It creates the identity record that login will later use.
+
+Endpoint:
+
+```text
+POST /auth/signup
+```
+
+Request DTO:
+
+`SignupRequest.java`
+
+Request body:
+
+```json
+{
+  "username": "rakshan",
+  "email": "rakshan@gmail.com",
+  "password": "password123"
+}
+```
+
+Response DTO:
+
+`SignupResponse.java`
+
+Response body:
+
+```json
+{
+  "id": 1,
+  "username": "rakshan",
+  "email": "rakshan@gmail.com",
+  "role": "SECOND_CLASS"
+}
+```
+
+The password is not returned. The backend receives the raw password once, hashes it, and stores only the hash.
+
+### Signup Sequence
+
+```text
+POST /auth/signup
+    -> AuthController.signup()
+    -> AuthService.signup()
+    -> UserRepository.existsByUsername()
+    -> UserRepository.existsByEmail()
+    -> PasswordEncoder.encode()
+    -> create User entity
+    -> UserRepository.save()
+    -> PostgreSQL users table
+    -> toSignupResponse()
+    -> SignupResponse returned
+```
+
+### Important Functions
+
+`AuthController.signup()`
+
+```java
+public ResponseEntity<SignupResponse> signup(
+        @Valid @RequestBody SignupRequest request)
+```
+
+This receives the HTTP request and passes the DTO to the service.
+
+`AuthService.signup()`
+
+```java
+public SignupResponse signup(SignupRequest request)
+```
+
+This performs the signup logic:
+
+- check duplicate username
+- check duplicate email
+- hash password
+- set default role
+- save user
+- return signup response
+
+`PasswordEncoder.encode()`
+
+```java
+passwordEncoder.encode(request.getPassword())
+```
+
+This converts the raw password into a BCrypt hash.
+
+`UserRepository.save()`
+
+```java
+userRepository.save(user)
+```
+
+This saves the user into PostgreSQL through Spring Data JPA and Hibernate.
+
+`toSignupResponse()`
+
+```java
+private SignupResponse toSignupResponse(User user)
+```
+
+This decides what leaves the backend. It intentionally excludes the password hash.
+
+---
+
+## Flow 2: Login / JWT Generation
+
+Purpose:
+
+```text
+Verify username/password and create a JWT token.
+```
+
+Endpoint:
+
+```text
+POST /auth/login
+```
+
+Request DTO:
+
+`LoginRequest.java`
+
+Request body:
+
+```json
+{
+  "username": "rakshan",
+  "password": "password123"
+}
+```
+
+Response DTO:
+
+`LoginResponse.java`
+
+Response body:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "tokenType": "Bearer"
+}
+```
+
+### Login Sequence
+
+```text
+POST /auth/login
+    -> AuthController.login()
+    -> AuthService.login()
+    -> AuthenticationManager.authenticate()
+    -> CustomUserDetailsService.loadUserByUsername()
+    -> UserRepository.findByUsername()
+    -> UserPrincipal returned
+    -> Spring Security compares raw password with password hash
+    -> AuthService loads User
+    -> JwtUtil.generateToken(user)
+    -> LoginResponse returned
+```
+
+### Important Functions
+
+`AuthController.login()`
+
+```java
+public ResponseEntity<LoginResponse> login(
+        @Valid @RequestBody LoginRequest request)
+```
+
+This receives the login request and calls the service.
+
+`AuthService.login()`
+
+```java
+public LoginResponse login(LoginRequest request)
+```
+
+This starts authentication and returns a JWT token if authentication succeeds.
+
+`AuthenticationManager.authenticate()`
+
+```java
+authManager.authenticate(
+    new UsernamePasswordAuthenticationToken(
+        request.getUsername(),
+        request.getPassword()
+    )
+);
+```
+
+This is the Spring Security login check.
+
+It verifies:
+
+```text
+Does this username exist?
+Does this raw password match the stored password hash?
+```
+
+To answer that, it uses `CustomUserDetailsService`.
+
+`CustomUserDetailsService.loadUserByUsername()`
+
+```java
+public UserDetails loadUserByUsername(String username)
+```
+
+This loads the user from DB:
+
+```java
+userRepository.findByUsername(username)
+```
+
+Then returns:
+
+```java
+new UserPrincipal(user)
+```
+
+`UserPrincipal`
+
+`UserPrincipal` gives Spring Security:
+
+- username
+- password hash
+- role/authority
+- user id
+
+Spring Security then compares:
+
+```text
+raw password from LoginRequest
+vs
+passwordHash from UserPrincipal
+```
+
+`JwtUtil.generateToken()`
+
+```java
+jwtUtil.generateToken(user)
+```
+
+This creates the JWT after login succeeds.
+
+The token contains claims like:
 
 - username
 - user id
 - role
 - expiry time
 
-Because the token is signed, the backend can later verify that the token was created by this application and was not changed by the client.
+---
 
-For Phase 1 localhost testing, JWT can work as a simple stateless login mechanism.
+## Flow 3: Protected Request / JWT Validation
 
-Later, Redis can be added for token revocation/logout across multiple app instances.
+Purpose:
+
+```text
+Validate JWT on every protected request.
+```
+
+Example request:
+
+```http
+GET /api/cold-data/user/1
+Authorization: Bearer <jwt-token>
+```
+
+### Protected Request Sequence
+
+```text
+Client sends request with Authorization header
+    -> Spring Security filter chain starts
+    -> JwtAuthFilter.doFilterInternal()
+    -> read Authorization header
+    -> extract Bearer token
+    -> JwtUtil.extractUsername(token)
+    -> CustomUserDetailsService.loadUserByUsername(username)
+    -> JwtUtil.validateToken(token)
+    -> create UsernamePasswordAuthenticationToken
+    -> SecurityContextHolder stores authentication
+    -> request continues to Controller
+    -> Controller calls Service
+    -> @PreAuthorize checks role/ownership
+    -> Repository
+    -> PostgreSQL
+```
+
+### Important Functions
+
+`JwtAuthFilter.doFilterInternal()`
+
+This method runs once per request.
+
+It reads:
+
+```java
+request.getHeader("Authorization")
+```
+
+It expects this format:
+
+```text
+Bearer <jwt-token>
+```
+
+Then it extracts the token:
+
+```java
+token = authHeader.substring(7);
+```
+
+`JwtUtil.extractUsername()`
+
+```java
+username = jwtUtil.extractUsername(token);
+```
+
+This reads the subject/username from the JWT.
+
+`CustomUserDetailsService.loadUserByUsername()`
+
+```java
+UserDetails userDetails =
+        customUserDetailsService.loadUserByUsername(username);
+```
+
+This loads fresh user details from PostgreSQL.
+
+This is useful because roles or user status may come from the DB, not only from the token.
+
+`JwtUtil.validateToken()`
+
+```java
+jwtUtil.validateToken(token)
+```
+
+This checks:
+
+- token signature
+- token expiry
+- token structure
+
+If invalid, the request remains unauthenticated.
+
+`UsernamePasswordAuthenticationToken`
+
+```java
+new UsernamePasswordAuthenticationToken(
+    userDetails,
+    null,
+    userDetails.getAuthorities()
+)
+```
+
+This creates the Spring Security authentication object for the current request.
+
+`SecurityContextHolder`
+
+```java
+SecurityContextHolder.getContext().setAuthentication(authToken);
+```
+
+This stores the authenticated user for the current request.
+
+After this line, Spring Security knows:
+
+```text
+Who is the user?
+What role do they have?
+Are they authenticated?
+```
+
+Then controller/service methods can use:
+
+```java
+@PreAuthorize("hasRole('ADMIN')")
+```
+
+or:
+
+```java
+@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+```
+
+---
+
+## Spring Security Config
+
+File:
+
+`Backend/src/main/java/com/projectscale/projectscale/config/AuthSecurityConfig.java`
+
+Main rules:
+
+```java
+.requestMatchers("/auth/**").permitAll()
+.anyRequest().authenticated()
+```
+
+Meaning:
+
+| Route | Access |
+|---|---|
+| `/auth/**` | Public |
+| Everything else | Requires valid JWT |
+
+The config is stateless:
+
+```java
+SessionCreationPolicy.STATELESS
+```
+
+Meaning:
+
+```text
+No server-side login session.
+Every protected request must send the JWT again.
+```
+
+The JWT filter is added before Spring's username/password filter:
+
+```java
+.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+```
+
+Meaning:
+
+```text
+Before request reaches controller, check if it has a valid JWT.
+```
+
+---
+
+## Method Security
+
+File:
+
+`Backend/src/main/java/com/projectscale/projectscale/config/MethodSecurityConfig.java`
+
+This enables:
+
+```java
+@PreAuthorize
+```
+
+Example:
+
+```java
+@PreAuthorize("hasRole('ADMIN')")
+```
+
+Meaning:
+
+```text
+Only users with ROLE_ADMIN can call this method.
+```
+
+Example:
+
+```java
+@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+```
+
+Meaning:
+
+```text
+Allow admins.
+Also allow the user if they are accessing their own data.
+```
 
 ---
 
 ## Roles In This Project
 
-Current file:
+File:
 
 `Backend/src/main/java/com/projectscale/projectscale/entity/UserRole.java`
 
@@ -90,15 +626,15 @@ public enum UserRole {
 }
 ```
 
-For the first phase, the project can be understood as:
+For Phase 1:
 
 | Role | Meaning |
 |---|---|
-| `ADMIN` | Can manage users and protected datasets |
+| `ADMIN` | Admin user |
 | `SECOND_CLASS` | Normal non-admin user |
-| `FIRST_CLASS` | Exists in code, but its purpose is not clearly defined yet |
+| `FIRST_CLASS` | Exists, but not clearly used yet |
 
-So for now, the practical auth model is:
+Practical Phase 1 model:
 
 ```text
 ADMIN vs normal user
@@ -106,508 +642,56 @@ ADMIN vs normal user
 
 ---
 
-## File-by-File Auth Flow
+## JWT Config
 
-### 1. `User.java`
+File:
 
-Path:
+`Backend/src/main/resources/application.yaml`
 
-`Backend/src/main/java/com/projectscale/projectscale/entity/User.java`
-
-This is the database entity for application users.
-
-It stores:
-
-- `id`
-- `username`
-- `email`
-- `passwordHash`
-- `role`
-- `createdAt`
-
-Important point:
-
-The password should never be stored as plain text. It should be stored as a BCrypt hash in `passwordHash`.
-
----
-
-### 2. `UserRole.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/entity/UserRole.java`
-
-This enum defines the roles available in the system.
-
-Spring Security checks roles using expressions like:
-
-```java
-@PreAuthorize("hasRole('ADMIN')")
-```
-
-Spring internally expects the authority name to be:
-
-```text
-ROLE_ADMIN
-```
-
-That is why the project adds `"ROLE_"` before the enum role name when building authorities.
-
----
-
-### 3. `UserRepository.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/repository/UserRepository.java`
-
-This is the database access layer for users.
-
-It provides methods such as:
-
-```java
-Optional<User> findByUsername(String username);
-Optional<User> findByEmail(String email);
-boolean existsByUsername(String username);
-boolean existsByEmail(String email);
-```
-
-Auth uses this repository to:
-
-- check if a signup username/email already exists
-- load a user during login
-- load a user while validating JWT requests
-
----
-
-### 4. `SignupRequest.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/dto/SignupRequest.java`
-
-This DTO receives signup input from the client.
-
-It contains:
-
-- `username`
-- `email`
-- `password`
-
-It also has validation annotations like:
-
-```java
-@NotBlank
-@Email
-@Size(min = 8)
-```
-
-These validations run before the service logic when the controller uses `@Valid`.
-
----
-
-### 5. `LoginRequest.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/dto/LoginRequest.java`
-
-This DTO receives login input:
-
-- `username`
-- `password`
-
-The password here is the raw password entered by the user. It is checked against the stored BCrypt hash by Spring Security.
-
----
-
-### 6. `AuthController.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/controller/AuthController.java`
-
-This controller exposes auth endpoints.
-
-Current base path:
-
-```java
-@RequestMapping("/auth")
-```
-
-Current endpoints:
-
-```text
-POST /auth/signup
-POST /auth/login
-POST /auth/logout
-```
-
-Flow:
-
-```text
-Client request
-    -> AuthController
-    -> AuthService
-```
-
-The controller should stay thin. Its job is only to receive the request and call the service.
-
----
-
-### 7. `AuthService.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/services/AuthService.java`
-
-This service contains the main auth business logic.
-
-Signup flow:
-
-```text
-Check duplicate username
-Check duplicate email
-Encode password using PasswordEncoder
-Set default role
-Save user
-Return user response
-```
-
-Login flow:
-
-```text
-Receive username/password
-Ask AuthenticationManager to authenticate
-Load user from DB
-Generate JWT token
-Return token
-```
-
-Logout flow currently:
-
-```text
-Return success message
-```
-
-For the future Redis phase, logout should delete or blacklist the token in Redis.
-
----
-
-### 8. `ProjectScaleApplication.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/ProjectScaleApplication.java`
-
-This is the main Spring Boot entry point.
-
-It also defines the password encoder bean:
-
-```java
-@Bean
-public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-}
-```
-
-This bean is used when:
-
-- creating users
-- signing up users
-- checking login passwords through Spring Security
-
----
-
-### 9. `CustomUserDetailsService.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/auth/CustomUserDetailsService.java`
-
-This class connects Spring Security to the project user table.
-
-Spring Security does not automatically know how users are stored in this project. So this class tells Spring:
-
-```text
-Given a username, load the user from PostgreSQL.
-```
-
-Flow:
-
-```text
-AuthenticationManager
-    -> CustomUserDetailsService.loadUserByUsername(username)
-    -> UserRepository.findByUsername(username)
-    -> return UserDetails object
-```
-
-The returned `UserDetails` contains:
-
-- username
-- password hash
-- authorities such as `ROLE_ADMIN`
-
-Spring Security then compares the raw login password with the stored password hash.
-
----
-
-### 10. `UserPrincipal.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/auth/UserPrincipal.java`
-
-This class is intended to represent the logged-in user inside Spring Security.
-
-Its useful purpose is that it can expose:
-
-```java
-authentication.principal.id
-```
-
-That allows method security rules like:
-
-```java
-@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
-```
-
-Meaning:
-
-```text
-Allow admins, or allow the user if they are accessing their own data.
-```
-
-This is important for user-specific APIs.
-
----
-
-### 11. `JwtUtil.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/auth/JwtUtil.java`
-
-This class creates and validates JWT tokens.
-
-Token generation:
-
-```text
-User logs in
-    -> JwtUtil.generateToken(user)
-    -> token contains username, userId, role, expiry
-```
-
-Token validation:
-
-```text
-Request contains Bearer token
-    -> JwtUtil validates signature and expiry
-    -> username is extracted from token
-```
-
-Important config values used by this class:
+Current JWT values:
 
 ```yaml
 jwt:
-  secret: some-long-secret-key
-  expiration: 3600000
+  secret: ${JWT_SECRET:project-scale-local-jwt-secret-key-change-before-production}
+  expiration: ${JWT_EXPIRATION:3600000}
 ```
 
-`expiration` is normally in milliseconds.
+`expiration` is in milliseconds.
 
----
-
-### 12. `JwtAuthFilter.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/auth/JwtAuthFilter.java`
-
-This is the most important file for protected requests.
-
-It runs once per request before the controller.
-
-Flow:
+For local testing:
 
 ```text
-Read Authorization header
-Check if it starts with "Bearer "
-Extract token
-Extract username from token
-Load user from DB
-Validate token
-Create Authentication object
-Store it in SecurityContextHolder
-Continue request
+3600000 ms = 1 hour
 ```
-
-After this filter succeeds, Spring considers the request authenticated.
-
-Then protected controllers/services can run.
-
----
-
-### 13. `AuthSecurityConfig.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/config/AuthSecurityConfig.java`
-
-This file defines the main Spring Security rules.
-
-Current behavior:
-
-```java
-.requestMatchers("/auth/**").permitAll()
-.anyRequest().authenticated()
-```
-
-Meaning:
-
-| Route | Access |
-|---|---|
-| `/auth/**` | Public |
-| Everything else | Requires JWT login |
-
-It also sets:
-
-```java
-SessionCreationPolicy.STATELESS
-```
-
-That means the backend does not create server-side login sessions. Every protected request must carry its JWT token.
-
-It also adds:
-
-```java
-.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-```
-
-This tells Spring Security:
-
-```text
-Run JwtAuthFilter before the normal username/password filter.
-```
-
----
-
-### 14. `MethodSecurityConfig.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/config/MethodSecurityConfig.java`
-
-This enables method-level security:
-
-```java
-@EnableMethodSecurity
-```
-
-Because of this, annotations like the following work:
-
-```java
-@PreAuthorize("hasRole('ADMIN')")
-```
-
-Without this config, those annotations may not be enforced.
-
----
-
-### 15. `SeedAdmin.java`
-
-Path:
-
-`Backend/src/main/java/com/projectscale/projectscale/config/SeedAdmin.java`
-
-This file is intended to create a default admin user when the app starts.
-
-Purpose:
-
-```text
-When the app starts:
-    -> check if admin email exists
-    -> if not, create admin user
-    -> assign ADMIN role
-```
-
-This helps local testing because you need one admin account before admin-only APIs can be tested.
-
-Example local admin idea:
-
-```text
-username: admin
-email: admin@gmail.com
-password: admin123
-role: ADMIN
-```
-
-For real projects, default credentials should not be hardcoded.
-
----
-
-## How Protected APIs Use Auth
-
-Example from user APIs:
-
-```java
-@PreAuthorize("hasRole('ADMIN')")
-```
-
-This means:
-
-```text
-Only users with ROLE_ADMIN can call this method.
-```
-
-Example:
-
-```java
-@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
-```
-
-This means:
-
-```text
-Allow admin users.
-Also allow normal users if the requested id is their own user id.
-```
-
-This is how the project separates admin behavior from normal user behavior.
 
 ---
 
 ## Phase 1 Auth Goal
 
-For first-phase localhost testing, the auth system should support:
+For first-phase localhost testing, auth should support:
 
 1. Start Spring Boot locally.
-2. Connect to local PostgreSQL.
+2. Connect to PostgreSQL.
 3. Seed or create one admin user.
 4. Login as admin.
-5. Receive JWT token.
+5. Receive `LoginResponse` with JWT token.
 6. Use token to call admin-only APIs.
 7. Create normal user.
 8. Login as normal user.
 9. Confirm normal user cannot call admin-only APIs.
 10. Confirm normal user can call only allowed user-specific APIs.
 
-This is enough before adding Redis, Nginx, load balancing, and k6 tests.
-
 ---
 
-## Current Code Notes To Fix Later
+## Memory Shortcut
 
-These notes describe current code mismatches found during project review.
-
-They should be fixed before Phase 1 auth testing:
-
-- `AuthService.java` imports `com.projectscale.projectscale.Auth.JwtUtil`, but the actual package should be lowercase `auth`.
-- `CustomUserDetailsService.java` declares package `com.projectscale.projectscale.Auth`, but the folder/package convention is lowercase `auth`.
-- `User.java` has `passwordHash`, `getPasswordHash()`, and `setPasswordHash()`, but some auth files call `getPassword()` or `setPassword()`.
-- `SeedAdmin.java` calls `existsByemail`, but `UserRepository` defines `existsByEmail`.
-- `SeedAdmin.java` uses `User.Role.ADMIN`, but the project role enum is `UserRole.ADMIN`.
-- `AuthSecurityConfig.java` file name and public class name should match.
-- `jwt.secret` and `jwt.expiration` need to be configured in application properties/YAML.
-
-Once these are fixed, the auth flow can be tested properly on localhost.
+```text
+Signup creates user.
+Login checks username/password.
+AuthenticationManager performs the login check.
+CustomUserDetailsService loads user from DB.
+JwtUtil creates and validates token.
+JwtAuthFilter checks token on every protected request.
+SecurityContextHolder stores logged-in user for one request.
+@PreAuthorize checks role/ownership.
+```
