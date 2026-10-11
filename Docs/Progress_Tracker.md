@@ -197,6 +197,7 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 | DB enum mapping | `users.role` is PostgreSQL enum `user_role`, while Java enum was inserted as varchar | Fixed |
 | Hot data schema | `HotItem` now requires `hot_items.user_id` for ownership | Pending DB schema update |
 | SQL migration files | Baseline table and index SQL files exist under `Backend/src/main/resources/db/migration` | Created, not wired to Flyway yet |
+| Global API error handling | Central JSON error response added for validation, service, auth, and security errors | Built |
 
 ---
 
@@ -342,3 +343,4 @@ These need to be fixed before the backend can be trusted for Phase 1 testing.
 | 2026-10-09 | Cleaned up user module DTO validation, default role assignment, and update authorization |
 | 2026-10-09 | Added HotItem user ownership and admin/self-user API flow; DB schema still needs `hot_items.user_id` |
 | 2026-10-11 | Added baseline SQL migration files for Project Scale tables and indexes |
+| 2026-10-11 | Added global API error handler and JSON security error responses |
