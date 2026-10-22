@@ -10,6 +10,14 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/users")
 public class UserController {
 
+    /*
+     * Important controller annotations:
+     * @RequestBody  - converts the request JSON body into a Java DTO object.
+     * @PathVariable - reads a value embedded in the URL path, such as /users/{id}.
+     * @RequestParam - reads a query-string value, such as /users?page=0&size=10.
+     * @Valid        - checks the validation rules declared inside the request DTO.
+     */
+
     private final UserService userService;
 
     public UserController(UserService userService) {

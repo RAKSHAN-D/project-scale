@@ -5,11 +5,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*; 
 import com.projectscale.projectscale.dto.HotItemRequest;
 import com.projectscale.projectscale.dto.HotItemResponse;
+import com.projectscale.projectscale.dto.MessageResponse;
 import com.projectscale.projectscale.services.HotItemService;
 
 @RestController
 @RequestMapping("/api/hot-data")
 public class HotItemController {
+
+    /*
+     * Important controller annotations:
+     * @RequestBody  - converts the request JSON body into a Java DTO object.
+     * @PathVariable - reads a value embedded in the URL path, such as /user/{userId}.
+     * @RequestParam - reads a query-string value, such as /hot-data?itemKey=profile.
+     * @Valid        - checks the validation rules declared inside the request DTO.
+     */
     private final HotItemService hotItemService;
 
     public HotItemController(HotItemService hotItemService) {
@@ -41,15 +50,15 @@ public class HotItemController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteHotItem(@PathVariable Long id) {
+    public ResponseEntity<MessageResponse> deleteHotItem(@PathVariable Long id) {
         hotItemService.deleteHotItem(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Hot item deleted successfully"));
     }
 
     @DeleteMapping("/user/{userId}/item/{id}")
-    public ResponseEntity<Void> deleteHotItemForUser(@PathVariable Long userId, @PathVariable Long id) {
+    public ResponseEntity<MessageResponse> deleteHotItemForUser(@PathVariable Long userId, @PathVariable Long id) {
         hotItemService.deleteHotItem(userId, id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MessageResponse("Hot item deleted successfully"));
     }
 
     @PatchMapping("/{id}")

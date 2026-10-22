@@ -9,6 +9,14 @@ import com.projectscale.projectscale.services.ColdItemService;
 @RestController
 @RequestMapping("/api/cold-data")
 public class ColdItemController {
+
+    /*
+     * Important controller annotations:
+     * @RequestBody  - converts the request JSON body into a Java DTO object.
+     * @PathVariable - reads a value embedded in the URL path, such as /user/{userId}.
+     * @RequestParam - reads a query-string value, such as /cold-data?type=TYPE_A.
+     * @Valid        - checks the validation rules declared inside the request DTO.
+     */
     private final ColdItemService coldItemService;
     public ColdItemController(ColdItemService coldItemService) {
         this.coldItemService = coldItemService; // Constructor injection of the service
