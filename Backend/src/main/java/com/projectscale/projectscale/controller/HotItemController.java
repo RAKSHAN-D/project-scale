@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.projectscale.projectscale.dto.HotItemRequest;
 import com.projectscale.projectscale.dto.HotItemResponse;
 import com.projectscale.projectscale.dto.MessageResponse;
+import com.projectscale.projectscale.dto.UpdateHotItemRequest;
 import com.projectscale.projectscale.services.HotItemService;
 
 @RestController
@@ -62,7 +63,9 @@ public class HotItemController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<HotItemResponse> updateHotItem(@PathVariable Long id, @RequestBody HotItemRequest request) {
+    public ResponseEntity<HotItemResponse> updateHotItem(
+            @PathVariable Long id,
+            @RequestBody UpdateHotItemRequest request) {
         return ResponseEntity.ok(hotItemService.updateHotItem(id, request));
     }
 
@@ -70,7 +73,7 @@ public class HotItemController {
     public ResponseEntity<HotItemResponse> updateHotItemForUser(
             @PathVariable Long userId,
             @PathVariable Long id,
-            @RequestBody HotItemRequest request) {
+            @RequestBody UpdateHotItemRequest request) {
         return ResponseEntity.ok(hotItemService.updateHotItem(userId, id, request));
     }
 }

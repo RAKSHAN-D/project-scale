@@ -1,5 +1,6 @@
 package com.projectscale.projectscale.services;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.projectscale.projectscale.dto.HotItemRequest;
 import com.projectscale.projectscale.dto.HotItemResponse;
+import com.projectscale.projectscale.dto.UpdateHotItemRequest;
 import com.projectscale.projectscale.entity.HotItem;
 import com.projectscale.projectscale.entity.User;
 import com.projectscale.projectscale.repository.HotItemRepository;
@@ -82,19 +84,19 @@ public class HotItemService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public HotItemResponse updateHotItem(Long id, HotItemRequest request) {
+    public HotItemResponse updateHotItem(Long id, UpdateHotItemRequest request) {
         HotItem hotItem = getHotItemOrThrow(id);
         return updateExistingHotItem(hotItem, request);
     }
 
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public HotItemResponse updateHotItem(Long userId, Long id, HotItemRequest request) {
+    public HotItemResponse updateHotItem(Long userId, Long id, UpdateHotItemRequest request) {
         HotItem hotItem = getHotItemOrThrow(id);
         validateUserOwnsHotItem(hotItem, userId);
         return updateExistingHotItem(hotItem, request);
     }
 
-    private HotItemResponse updateExistingHotItem(HotItem hotItem, HotItemRequest request) {
+    private HotItemResponse updateExistingHotItem(HotItem hotItem, UpdateHotItemRequest request) {
         if (request.getItemKey() != null && !request.getItemKey().trim().isEmpty()) {
             String newKey = request.getItemKey().trim();
             String currentKey = hotItem.getItemKey();
@@ -108,7 +110,11 @@ public class HotItemService {
         }
 
         if (request.getValue() != null) {
-            hotItem.setValue(request.getValue());
+            Map<String, Object> mergedValue = hotItem.getValue() == null
+                    ? new HashMap<>()
+                    : new HashMap<>(hotItem.getValue());
+            mergedValue.putAll(request.getValue());
+            hotItem.setValue(mergedValue);
         }
 
         return toHotItemResponse(hotItemRepository.save(hotItem));
