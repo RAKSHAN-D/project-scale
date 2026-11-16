@@ -21,7 +21,7 @@ public class ColdItemService {
         this.coldItemRepository = coldItemRepository;   // Constructor injection of the repository
         this.userRepository = userRepository;   // Constructor injection of the user repository
     }
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or #request.userId == authentication.principal.id")
     public ColdItemResponse addColdData(ColdItemRequest request) {
 
     // 1. Basic Validation
