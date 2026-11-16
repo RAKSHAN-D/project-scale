@@ -30,8 +30,8 @@ public class HotItemService {
         String itemKey = request.getItemKey().trim();
         Map<String, Object> value = request.getValue();
 
-        if (hotItemRepository.existsByItemKey(itemKey)) {
-            throw new IllegalArgumentException("An item with this key already exists.");
+        if (hotItemRepository.existsByUser_IdAndItemKey(request.getUserId(), itemKey)) {
+            throw new IllegalArgumentException("This user already has an item with this key.");
         }
 
         User user = userRepository.findById(request.getUserId())
@@ -102,8 +102,9 @@ public class HotItemService {
             String currentKey = hotItem.getItemKey();
 
             if (!newKey.equals(currentKey)) {
-                if (hotItemRepository.existsByItemKey(newKey)) {
-                    throw new IllegalArgumentException("An item with this key already exists.");
+                if (hotItemRepository.existsByUser_IdAndItemKey(
+                        hotItem.getUser().getId(), newKey)) {
+                    throw new IllegalArgumentException("This user already has an item with this key.");
                 }
                 hotItem.setItemKey(newKey);
             }

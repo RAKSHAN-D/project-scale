@@ -7,14 +7,20 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "hot_items")
+@Table(
+        name = "hot_items",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_hot_items_user_item_key",
+                columnNames = {"user_id", "item_key"}
+        )
+)
 public class HotItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "item_key", nullable = false, unique = true, length = 100)
+    @Column(name = "item_key", nullable = false, length = 100)
     private String itemKey;
 
     @ManyToOne(fetch = FetchType.LAZY)
