@@ -1,6 +1,7 @@
 package com.projectscale.projectscale.services;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,13 @@ public class ColdItemService {
     // 1. Basic Validation
     if (request.getUserId() == null ||
         request.getType() == null ||
-        request.getPayload() == null || request.getPayload().trim().isEmpty()) {
+        request.getPayload() == null || request.getPayload().isEmpty()) {
         throw new IllegalArgumentException("User ID, type, and payload are required.");
     }
 
     // 2. Extract values
     Long userId = request.getUserId();
-    String payload = request.getPayload();
+    Map<String, Object> payload = request.getPayload();
 
     String type = request.getType().trim().toUpperCase();
 
@@ -84,7 +85,7 @@ public class ColdItemService {
         ColdItem existingItem = coldItemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cold data item not found."));
 
-        if (request.getPayload() != null && !request.getPayload().trim().isEmpty()) {
+        if (request.getPayload() != null && !request.getPayload().isEmpty()) {
             existingItem.setPayload(request.getPayload());
         }
         if (request.getType() != null) {

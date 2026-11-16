@@ -1,21 +1,22 @@
 package com.projectscale.projectscale.dto;
 import java.time.OffsetDateTime;
+import java.util.Map;
 public class ColdItemResponse {
     private Long id;
-    private String data;
+    private Map<String, Object> data;
     private String type;
     private Long userId;
     private OffsetDateTime createdAt;
     public Long getId() {
         return id;
     }
-    public String getData() {
+    public Map<String, Object> getData() {
         return data;
     }
     public void setId(Long id) {
         this.id = id;
     }
-    public void setData(String data) {
+    public void setData(Map<String, Object> data) {
         this.data = data;
     }
     public String getType() {

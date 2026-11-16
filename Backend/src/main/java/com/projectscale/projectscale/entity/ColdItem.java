@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "cold_items")
@@ -23,7 +24,7 @@ public class ColdItem {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
-    private String payload;
+    private Map<String, Object> payload;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
@@ -37,8 +38,8 @@ public class ColdItem {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public String getPayload() { return payload; }
-    public void setPayload(String payload) { this.payload = payload; }
+    public Map<String, Object> getPayload() { return payload; }
+    public void setPayload(Map<String, Object> payload) { this.payload = payload; }
 
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }

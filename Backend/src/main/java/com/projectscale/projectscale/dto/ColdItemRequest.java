@@ -1,12 +1,16 @@
 package com.projectscale.projectscale.dto;
+import java.util.Map;
+
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 public class ColdItemRequest {
    @NotNull
     private Long userId;
-    @NotBlank
-    private String payload;
+    @NotNull(message = "Payload is required")
+    @NotEmpty(message = "Payload cannot be empty")
+    private Map<String, Object> payload;
     @NotBlank(message = "Type is required")
     @Size(max = 50, message = "Type cannot exceed 50 characters")
     private String type;
@@ -17,10 +21,10 @@ public class ColdItemRequest {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    public String getPayload() {
+    public Map<String, Object> getPayload() {
         return payload;
     }
-    public void setPayload(String payload) {
+    public void setPayload(Map<String, Object> payload) {
         this.payload = payload;
     }
     public String getType() {
