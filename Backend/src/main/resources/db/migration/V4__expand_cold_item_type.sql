@@ -1,0 +1,2 @@
+ALTER TABLE cold_items
+    ALTER COLUMN type TYPE VARCHAR(50);

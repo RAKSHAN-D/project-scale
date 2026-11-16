@@ -1,14 +1,15 @@
 package com.projectscale.projectscale.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
-import com.projectscale.projectscale.entity.ColdItemType;
+import jakarta.validation.constraints.Size;
 public class ColdItemRequest {
    @NotNull
     private Long userId;
     @NotBlank
     private String payload;
-    @NotNull
-    private ColdItemType type;
+    @NotBlank(message = "Type is required")
+    @Size(max = 50, message = "Type cannot exceed 50 characters")
+    private String type;
     public Long getUserId() {
         return userId;
     }
@@ -22,10 +23,10 @@ public class ColdItemRequest {
     public void setPayload(String payload) {
         this.payload = payload;
     }
-    public ColdItemType getType() {
+    public String getType() {
         return type;
     }
-    public void setType(ColdItemType type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

@@ -17,9 +17,9 @@ public class ColdItem {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private ColdItemType type;
+    
+    @Column(nullable = false, length = 50)
+    private String type;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
@@ -34,8 +34,8 @@ public class ColdItem {
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public ColdItemType getType() { return type; }
-    public void setType(ColdItemType type) { this.type = type; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
     public String getPayload() { return payload; }
     public void setPayload(String payload) { this.payload = payload; }

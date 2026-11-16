@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.projectscale.projectscale.dto.ColdItemRequest;
 import com.projectscale.projectscale.dto.ColdItemResponse;
 import com.projectscale.projectscale.entity.ColdItem;
-import com.projectscale.projectscale.entity.ColdItemType;
 import com.projectscale.projectscale.entity.User;
 import com.projectscale.projectscale.repository.ColdItemRepository;
 import com.projectscale.projectscale.repository.UserRepository;
@@ -35,7 +34,7 @@ public class ColdItemService {
     Long userId = request.getUserId();
     String payload = request.getPayload();
 
-    ColdItemType type = request.getType();
+    String type = request.getType().trim().toUpperCase();
 
     // 4. Fetch User from DB (VERY IMPORTANT)
     User user = userRepository.findById(userId)
@@ -89,7 +88,7 @@ public class ColdItemService {
             existingItem.setPayload(request.getPayload());
         }
         if (request.getType() != null) {
-            existingItem.setType(request.getType());
+            existingItem.setType(request.getType().trim().toUpperCase());
         }
 
         ColdItem savedItem = coldItemRepository.save(existingItem);
@@ -108,7 +107,7 @@ public class ColdItemService {
         ColdItemResponse response = new ColdItemResponse();
         response.setId(item.getId());
         response.setData(item.getPayload());
-        response.setType(item.getType().name());
+        response.setType(item.getType());
         response.setUserId(item.getUser().getId());
         response.setCreatedAt(item.getCreatedAt());
         return response;
