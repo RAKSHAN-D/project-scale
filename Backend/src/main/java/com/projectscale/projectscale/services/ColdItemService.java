@@ -1,8 +1,7 @@
+// this is the colditem service file 
 package com.projectscale.projectscale.services;
-
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
