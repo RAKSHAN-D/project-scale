@@ -1,5 +1,5 @@
+// this is the colditem entity 
 package com.projectscale.projectscale.entity;
-
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
