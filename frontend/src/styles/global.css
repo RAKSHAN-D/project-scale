@@ -1,12 +1,45 @@
+/* Shared theme colors */
+:root {
+  --color-bg-top: #ffda6a;
+  --color-bg-bottom: #fff7de;
+  --color-mustard: #ffeb99;
+  --color-burgundy: #800020;
+  --color-sidebar: #b84c65;
+  --color-text: #171717;
+  --color-cream: #fff7e6;
+}
+
+/* Include padding and borders within an element's size */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+/* Default page appearance */
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--color-text);
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-top, var(--color-cream)) 0%,
+    var(--color-bg-bottom, var(--color-mustard)) 100%
+  );
+}
+
+/* Make the application fill at least the screen height */
+#root {
+  min-height: 100vh;
+}
+
+/* Form controls use the same font as the page */
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 main {
