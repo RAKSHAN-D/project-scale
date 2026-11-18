@@ -1,7 +1,7 @@
-export default function App() {
-  return (
-    <main>
-      <h1>Project Scale</h1>
-    </main>
-  )
+import HomePage from './pages/HomePage'
+
+function App() {
+  return <HomePage />
 }
+
+export default App
