@@ -43,7 +43,9 @@
   background: transparent;
   color: var(--color-burgundy);
   font-size: clamp(1rem, 2vw, 1.625rem);
+  font-weight: 500;
   line-height: 1.2;
+  text-decoration: none;
 }
 
 .home-page__button--signup {
@@ -65,7 +67,6 @@
   margin-inline: auto;
   /* The PNG is three times as wide as it is tall, with a nearly transparent top fifth. */
   width: min(100%, 375cqh, 300dvh);
-  container-type: inline-size;
 }
 
 .home-page__illustration {
@@ -75,55 +76,24 @@
 }
 
 .home-page__birds {
-  display: none;
+  --bird-flight: home-bird-flight;
+  --bird-left: 6%;
+  --bird-size: clamp(0.5625rem, 2cqw, 1.6875rem);
+  --bird-top: 30%;
+  --bird-duration: 19s;
+  --bird-delay: -4s;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .home-page__birds {
-    display: block;
-    position: absolute;
-    inset: 0;
-    overflow: clip;
-    color: var(--color-burgundy);
-  }
+.home-page__birds .flying-bird:nth-child(2) {
+  --bird-top: 35%;
+  --bird-duration: 23s;
+  --bird-delay: -11s;
+}
 
-  .home-page__birds span {
-    position: absolute;
-    top: 30%;
-    left: 6%;
-    display: flex;
-    width: 1em;
-    font-size: clamp(0.5625rem, 2cqw, 1.6875rem);
-    animation: home-bird-flight 19s -4s linear infinite;
-  }
-
-  .home-page__birds span:nth-child(2) {
-    top: 35%;
-    animation-duration: 23s;
-    animation-delay: -11s;
-  }
-
-  .home-page__birds span:nth-child(3) {
-    top: 42%;
-    animation-duration: 26s;
-    animation-delay: -18s;
-  }
-
-  .home-page__birds span::before,
-  .home-page__birds span::after {
-    content: '';
-    width: 50%;
-    height: 0.3em;
-    border-top: 0.14em solid;
-    border-radius: 65% 65% 0 0;
-    transform-origin: right bottom;
-    animation: home-bird-flap 0.48s ease-in-out infinite alternate;
-  }
-
-  .home-page__birds span::after {
-    transform-origin: left bottom;
-    animation-name: home-bird-flap-right;
-  }
+.home-page__birds .flying-bird:nth-child(3) {
+  --bird-top: 42%;
+  --bird-duration: 26s;
+  --bird-delay: -18s;
 }
 
 @keyframes home-bird-flight {
@@ -133,14 +103,4 @@
   65% { transform: translate(56cqw, 0.15em); }
   88% { opacity: 0.82; }
   100% { transform: translate(86cqw, -0.7em); opacity: 0; }
-}
-
-@keyframes home-bird-flap {
-  from { rotate: 28deg; }
-  to { rotate: -18deg; }
-}
-
-@keyframes home-bird-flap-right {
-  from { rotate: -28deg; }
-  to { rotate: 18deg; }
 }

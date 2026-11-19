@@ -1,0 +1,60 @@
+.flying-birds {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Place the overlay inside a positioned illustration or scene. */
+  .flying-birds {
+    position: absolute;
+    inset: 0;
+    display: block;
+    container-type: inline-size;
+    overflow: clip;
+    pointer-events: none;
+    color: var(--color-burgundy);
+  }
+
+  .flying-bird {
+    position: absolute;
+    top: var(--bird-top, 35%);
+    left: var(--bird-left, 4%);
+    display: flex;
+    width: 1em;
+    font-size: var(--bird-size, clamp(0.5rem, 1.65cqw, 1.4rem));
+    animation: var(--bird-flight, bird-flight) var(--bird-duration, 9s)
+      var(--bird-delay, 0s) linear infinite;
+  }
+
+  .flying-bird::before,
+  .flying-bird::after {
+    content: '';
+    width: 50%;
+    height: 0.3em;
+    border-top: 0.14em solid;
+    border-radius: 65% 65% 0 0;
+    transform-origin: right bottom;
+    animation: bird-flap-left 0.48s ease-in-out infinite alternate;
+  }
+
+  .flying-bird::after {
+    transform-origin: left bottom;
+    animation-name: bird-flap-right;
+  }
+}
+
+@keyframes bird-flight {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15%, 85% { opacity: 0.82; }
+  50% { transform: translate(calc(var(--bird-distance, 16cqw) / 2), -0.65em); }
+  100% { transform: translate(var(--bird-distance, 16cqw), -0.2em); opacity: 0; }
+}
+
+@keyframes bird-flap-left {
+  from { rotate: 28deg; }
+  to { rotate: -18deg; }
+}
+
+@keyframes bird-flap-right {
+  from { rotate: -28deg; }
+  to { rotate: 18deg; }
+}

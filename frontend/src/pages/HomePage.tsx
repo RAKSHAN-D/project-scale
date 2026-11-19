@@ -8,9 +8,9 @@ function HomePage() {
         <h1>PROJECT-SCALE</h1>
         <p>A Town Directory Built to Test Backend Scalability</p>
         <div className="home-page__actions">
-          <button className="home-page__button home-page__button--signup" type="button" disabled>
+          <a className="home-page__button home-page__button--signup" href="/signup">
             Sign up
-          </button>
+          </a>
           <button className="home-page__button" type="button" disabled>
             Log in
           </button>
@@ -25,10 +25,10 @@ function HomePage() {
             width={2172}
             height={724}
           />
-          <div className="home-page__birds" aria-hidden="true">
-            <span />
-            <span />
-            <span />
+          <div className="flying-birds home-page__birds" aria-hidden="true">
+            <span className="flying-bird" />
+            <span className="flying-bird" />
+            <span className="flying-bird" />
           </div>
         </div>
       </div>

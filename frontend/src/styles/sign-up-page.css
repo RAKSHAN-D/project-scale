@@ -1,0 +1,180 @@
+.sign-up-page {
+  position: relative;
+  display: grid;
+  align-content: start;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: clamp(2rem, 4vw, 3.5rem) 1rem 2rem;
+  text-align: center;
+}
+
+.sign-up-page__content {
+  position: relative;
+  z-index: 1;
+}
+
+.sign-up-page h1 {
+  margin: 0 0 clamp(1.25rem, 2vw, 1.75rem);
+  font-size: clamp(2rem, 5.6vw, 4.75rem);
+  font-weight: 800;
+  line-height: 1.08;
+  text-transform: uppercase;
+  text-shadow: 0.09em 0.035em rgb(23 23 23 / 18%);
+}
+
+.sign-up-page__form {
+  width: min(100%, 29rem);
+  margin-inline: auto;
+}
+
+.sign-up-page__fields {
+  display: grid;
+  gap: clamp(0.875rem, 1.75vw, 1.5rem);
+  padding: clamp(1.5rem, 3.45vw, 3rem) clamp(0.875rem, 1.5vw, 1.25rem);
+  border: clamp(0.1875rem, 0.37vw, 0.3125rem) solid var(--color-burgundy);
+  border-radius: clamp(1.25rem, 2.6vw, 2.25rem);
+  text-align: left;
+}
+
+.sign-up-page__field {
+  position: relative;
+  font-size: clamp(1rem, 2.1vw, 1.75rem);
+}
+
+.sign-up-page__field input {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.72em 0 0.1em;
+  border: 0;
+  border-bottom: 0.125em solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  line-height: 1.1;
+}
+
+.sign-up-page__field input:focus-visible {
+  outline: 0;
+  border-color: var(--color-burgundy);
+}
+
+.sign-up-page__field label {
+  position: absolute;
+  bottom: 0.225em;
+  left: 0;
+  pointer-events: none;
+  line-height: 1.1;
+}
+
+.sign-up-page__field input:focus + label,
+.sign-up-page__field input:not(:placeholder-shown) + label {
+  top: 0.125rem;
+  bottom: auto;
+  font-size: 0.65em;
+  color: var(--color-burgundy);
+}
+
+.sign-up-page__field--password input {
+  padding-inline-end: 2.75rem;
+}
+
+.sign-up-page__visibility {
+  position: absolute;
+  right: 0;
+  bottom: 0.15rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sign-up-page__visibility span {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  place-items: center;
+  border: 0.1rem solid currentColor;
+  border-radius: 75% 15%;
+  rotate: 45deg;
+}
+
+.sign-up-page__visibility span::after {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  border: 0.1rem solid currentColor;
+  border-radius: 50%;
+}
+
+.sign-up-page__visibility[aria-pressed='true']::after {
+  position: absolute;
+  content: '';
+  width: 1.6rem;
+  border-top: 0.1rem solid currentColor;
+  rotate: -45deg;
+}
+
+.sign-up-page__submit {
+  min-width: 10.25rem;
+  margin-top: 0.875rem;
+  padding: 0.55rem 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-burgundy);
+  color: var(--color-mustard);
+  font-size: clamp(1.125rem, 1.9vw, 1.5rem);
+  line-height: 1.35;
+}
+
+.sign-up-page__login {
+  margin: 0.625rem 0 0;
+  font-size: clamp(1rem, 1.9vw, 1.5rem);
+  font-weight: 600;
+}
+
+.sign-up-page__login button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-burgundy);
+  font: inherit;
+  text-decoration: underline;
+}
+
+.sign-up-page__artwork {
+  position: absolute;
+  inset: auto 0 0;
+  pointer-events: none;
+}
+
+.sign-up-page__illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sign-up-page__birds {
+  --bird-delay: -2s;
+}
+
+.sign-up-page__birds .flying-bird:nth-child(n+3) {
+  --bird-distance: -16cqw;
+  --bird-left: 94%;
+  --bird-delay: -4s;
+}
+
+.sign-up-page__birds .flying-bird:nth-child(even) {
+  --bird-top: 40%;
+  --bird-delay: -6s;
+}
+
+@media (max-width: 55rem) {
+  .sign-up-page {
+    padding-bottom: max(4rem, 24vw);
+  }
+}
