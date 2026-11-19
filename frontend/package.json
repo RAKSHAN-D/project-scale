@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "postbuild": "node -e \"require('node:fs').copyFileSync('src/assets/fonts/OFL.txt', 'dist/assets/OFL.txt')\"",
     "preview": "vite preview"
   },
   "dependencies": {
