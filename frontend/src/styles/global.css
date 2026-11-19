@@ -52,6 +52,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: 'Poppins', Arial, Helvetica, sans-serif;
   font-weight: 400;
   color: var(--color-text);
@@ -65,6 +66,7 @@ body {
 /* Make the application fill at least the screen height */
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Form controls use the same font as the page */

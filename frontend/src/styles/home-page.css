@@ -1,20 +1,146 @@
 .home-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   padding: 0;
 }
 
 .home-page__intro {
-  padding: 1.5rem;
+  flex: none;
+  padding: clamp(1rem, min(7.5vw, 14dvh), 6.5rem) 1rem 0;
+  text-align: center;
 }
 
 .home-page__intro h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, min(8.5vw, 16dvh), 7.25rem);
   font-weight: 800;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-shadow: 0.09em 0.035em rgb(23 23 23 / 18%);
+}
+
+.home-page__intro p {
+  margin: 0.75rem 0 0;
+  font-size: clamp(1rem, 2.05vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.home-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1rem, 4.25vw, 3.625rem);
+  margin-block-start: clamp(1.25rem, 2.5vw, 2.125rem);
+}
+
+.home-page__button {
+  min-inline-size: clamp(7rem, 12.5vw, 11rem);
+  padding: 0.45rem 1rem;
+  border: 0.25rem solid var(--color-burgundy);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-burgundy);
+  font-size: clamp(1rem, 2vw, 1.625rem);
+  line-height: 1.2;
+}
+
+.home-page__button--signup {
+  background: var(--color-burgundy);
+  color: var(--color-mustard);
+}
+
+.home-page__artwork {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  pointer-events: none;
+  container-type: size;
+}
+
+.home-page__scene {
+  position: absolute;
+  inset: auto 0 0;
+  margin-inline: auto;
+  /* The PNG is three times as wide as it is tall, with a nearly transparent top fifth. */
+  width: min(100%, 375cqh, 300dvh);
+  container-type: inline-size;
 }
 
 .home-page__illustration {
+  display: block;
   width: 100%;
   height: auto;
-  margin-block-start: auto;
+}
+
+.home-page__birds {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-page__birds {
+    display: block;
+    position: absolute;
+    inset: 0;
+    overflow: clip;
+    color: var(--color-burgundy);
+  }
+
+  .home-page__birds span {
+    position: absolute;
+    top: 30%;
+    left: 6%;
+    display: flex;
+    width: 1em;
+    font-size: clamp(0.5625rem, 2cqw, 1.6875rem);
+    animation: home-bird-flight 19s -4s linear infinite;
+  }
+
+  .home-page__birds span:nth-child(2) {
+    top: 35%;
+    animation-duration: 23s;
+    animation-delay: -11s;
+  }
+
+  .home-page__birds span:nth-child(3) {
+    top: 42%;
+    animation-duration: 26s;
+    animation-delay: -18s;
+  }
+
+  .home-page__birds span::before,
+  .home-page__birds span::after {
+    content: '';
+    width: 50%;
+    height: 0.3em;
+    border-top: 0.14em solid;
+    border-radius: 65% 65% 0 0;
+    transform-origin: right bottom;
+    animation: home-bird-flap 0.48s ease-in-out infinite alternate;
+  }
+
+  .home-page__birds span::after {
+    transform-origin: left bottom;
+    animation-name: home-bird-flap-right;
+  }
+}
+
+@keyframes home-bird-flight {
+  0% { transform: translate(0, 0); opacity: 0; }
+  12% { opacity: 0.82; }
+  35% { transform: translate(30cqw, -0.9em); }
+  65% { transform: translate(56cqw, 0.15em); }
+  88% { opacity: 0.82; }
+  100% { transform: translate(86cqw, -0.7em); opacity: 0; }
+}
+
+@keyframes home-bird-flap {
+  from { rotate: 28deg; }
+  to { rotate: -18deg; }
+}
+
+@keyframes home-bird-flap-right {
+  from { rotate: -28deg; }
+  to { rotate: 18deg; }
 }
