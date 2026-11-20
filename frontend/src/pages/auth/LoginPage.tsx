@@ -5,7 +5,7 @@ function LoginPage() {
   return (
     <AuthPageLayout
       variant="login"
-      title="Welcome back"
+      title="Welcome back !!"
       submitLabel="Log in"
       footer={<>New to Project Scale? <a href="/signup">Sign up</a></>}
     >
