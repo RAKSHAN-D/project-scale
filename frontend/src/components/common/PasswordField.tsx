@@ -16,6 +16,7 @@ function PasswordField({ name, label, autoComplete }: PasswordFieldProps) {
         name={name}
         type={visible ? 'text' : 'password'}
         autoComplete={autoComplete}
+        minLength={8}
         placeholder=" "
         required
       />

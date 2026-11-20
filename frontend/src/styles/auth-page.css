@@ -30,6 +30,8 @@
 .auth-page__fields {
   display: grid;
   gap: clamp(0.875rem, 1.75vw, 1.5rem);
+  min-inline-size: 0;
+  margin: 0;
   padding: clamp(1.5rem, 3.45vw, 3rem) clamp(0.875rem, 1.5vw, 1.25rem);
   border: clamp(0.1875rem, 0.37vw, 0.3125rem) solid var(--color-burgundy);
   border-radius: clamp(1.25rem, 2.6vw, 2.25rem);
@@ -129,6 +131,20 @@
   color: var(--color-mustard);
   font-size: clamp(1.125rem, 1.9vw, 1.5rem);
   line-height: 1.35;
+}
+
+.auth-page__submit:disabled {
+  opacity: 0.7;
+}
+
+.auth-page__feedback {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.auth-page__feedback--error {
+  color: var(--color-burgundy);
 }
 
 .auth-page__switch {
