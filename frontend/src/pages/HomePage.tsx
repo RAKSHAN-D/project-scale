@@ -11,9 +11,9 @@ function HomePage() {
           <a className="home-page__button home-page__button--signup" href="/signup">
             Sign up
           </a>
-          <button className="home-page__button" type="button" disabled>
+          <a className="home-page__button" href="/login">
             Log in
-          </button>
+          </a>
         </div>
       </header>
       <div className="home-page__artwork">

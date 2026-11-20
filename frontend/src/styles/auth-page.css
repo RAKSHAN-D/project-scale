@@ -1,4 +1,4 @@
-.sign-up-page {
+.auth-page {
   position: relative;
   display: grid;
   align-content: start;
@@ -8,12 +8,12 @@
   text-align: center;
 }
 
-.sign-up-page__content {
+.auth-page__content {
   position: relative;
   z-index: 1;
 }
 
-.sign-up-page h1 {
+.auth-page h1 {
   margin: 0 0 clamp(1.25rem, 2vw, 1.75rem);
   font-size: clamp(2rem, 5.6vw, 4.75rem);
   font-weight: 800;
@@ -22,12 +22,12 @@
   text-shadow: 0.09em 0.035em rgb(23 23 23 / 18%);
 }
 
-.sign-up-page__form {
+.auth-page__form {
   width: min(100%, 29rem);
   margin-inline: auto;
 }
 
-.sign-up-page__fields {
+.auth-page__fields {
   display: grid;
   gap: clamp(0.875rem, 1.75vw, 1.5rem);
   padding: clamp(1.5rem, 3.45vw, 3rem) clamp(0.875rem, 1.5vw, 1.25rem);
@@ -36,12 +36,12 @@
   text-align: left;
 }
 
-.sign-up-page__field {
+.auth-page__field {
   position: relative;
   font-size: clamp(1rem, 2.1vw, 1.75rem);
 }
 
-.sign-up-page__field input {
+.auth-page__field input {
   display: block;
   width: 100%;
   min-height: 2.75rem;
@@ -54,12 +54,12 @@
   line-height: 1.1;
 }
 
-.sign-up-page__field input:focus-visible {
+.auth-page__field input:focus-visible {
   outline: 0;
   border-color: var(--color-burgundy);
 }
 
-.sign-up-page__field label {
+.auth-page__field label {
   position: absolute;
   bottom: 0.225em;
   left: 0;
@@ -67,19 +67,19 @@
   line-height: 1.1;
 }
 
-.sign-up-page__field input:focus + label,
-.sign-up-page__field input:not(:placeholder-shown) + label {
+.auth-page__field input:focus + label,
+.auth-page__field input:not(:placeholder-shown) + label {
   top: 0.125rem;
   bottom: auto;
   font-size: 0.65em;
   color: var(--color-burgundy);
 }
 
-.sign-up-page__field--password input {
+.auth-page__field--password input {
   padding-inline-end: 2.75rem;
 }
 
-.sign-up-page__visibility {
+.auth-page__visibility {
   position: absolute;
   right: 0;
   bottom: 0.15rem;
@@ -93,7 +93,7 @@
   cursor: pointer;
 }
 
-.sign-up-page__visibility span {
+.auth-page__visibility span {
   display: grid;
   width: 1.25rem;
   height: 1.25rem;
@@ -103,7 +103,7 @@
   rotate: 45deg;
 }
 
-.sign-up-page__visibility span::after {
+.auth-page__visibility span::after {
   content: '';
   width: 0.6rem;
   height: 0.6rem;
@@ -111,7 +111,7 @@
   border-radius: 50%;
 }
 
-.sign-up-page__visibility[aria-pressed='true']::after {
+.auth-page__visibility[aria-pressed='true']::after {
   position: absolute;
   content: '';
   width: 1.6rem;
@@ -119,7 +119,7 @@
   rotate: -45deg;
 }
 
-.sign-up-page__submit {
+.auth-page__submit {
   min-width: 10.25rem;
   margin-top: 0.875rem;
   padding: 0.55rem 1.5rem;
@@ -131,50 +131,69 @@
   line-height: 1.35;
 }
 
-.sign-up-page__login {
+.auth-page__switch {
   margin: 0.625rem 0 0;
   font-size: clamp(1rem, 1.9vw, 1.5rem);
   font-weight: 600;
 }
 
-.sign-up-page__login button {
-  padding: 0;
-  border: 0;
-  background: transparent;
+.auth-page__switch a {
   color: var(--color-burgundy);
-  font: inherit;
-  text-decoration: underline;
 }
 
-.sign-up-page__artwork {
+.auth-page__artwork {
   position: absolute;
   inset: auto 0 0;
   pointer-events: none;
 }
 
-.sign-up-page__illustration {
+.auth-page__illustration {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.sign-up-page__birds {
+.auth-page__birds {
   --bird-delay: -2s;
 }
 
-.sign-up-page__birds .flying-bird:nth-child(n+3) {
+.auth-page__birds .flying-bird:nth-child(n+3) {
   --bird-distance: -16cqw;
   --bird-left: 94%;
   --bird-delay: -4s;
 }
 
-.sign-up-page__birds .flying-bird:nth-child(even) {
+.auth-page__birds .flying-bird:nth-child(even) {
   --bird-top: 40%;
   --bird-delay: -6s;
 }
 
+.auth-page--login {
+  padding-top: clamp(2.5rem, min(8.75vw, 16dvh), 7.5rem);
+}
+
+.auth-page--login h1 {
+  margin-bottom: clamp(1.25rem, 2.6vw, 2.25rem);
+}
+
+.auth-page--login .auth-page__form {
+  width: min(100%, 33.25rem);
+}
+
+.auth-page--login .auth-page__fields {
+  padding-block: clamp(2rem, 5.1vw, 4.25rem);
+}
+
+.auth-page--login .auth-page__submit {
+  margin-top: clamp(1rem, 1.75vw, 1.5rem);
+  padding-block: 0.4rem;
+  border: clamp(0.1875rem, 0.37vw, 0.3125rem) solid currentColor;
+  background: transparent;
+  color: var(--color-burgundy);
+}
+
 @media (max-width: 55rem) {
-  .sign-up-page {
+  .auth-page {
     padding-bottom: max(4rem, 24vw);
   }
 }

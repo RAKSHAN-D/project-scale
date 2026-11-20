@@ -1,12 +1,16 @@
 import HomePage from './pages/HomePage'
+import LoginPage from './pages/auth/LoginPage'
 import SignUpPage from './pages/auth/SignUpPage'
 
 function App() {
-  if (window.location.pathname === '/signup' || window.location.pathname === '/signup/') {
-    return <SignUpPage />
+  switch (window.location.pathname.replace(/\/$/, '')) {
+    case '/signup':
+      return <SignUpPage />
+    case '/login':
+      return <LoginPage />
+    default:
+      return <HomePage />
   }
-
-  return <HomePage />
 }
 
 export default App
