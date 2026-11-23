@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { authTokenStorageKey, getSessionRole } from '../../services/auth'
-import AdminDashboardPage from './AdminDashboardPage'
 
-function AdminRoute() {
+function AdminRoute({ children }: { children: ReactNode }) {
   const [access, setAccess] = useState<'checking' | 'granted' | 'unavailable'>('checking')
 
   useEffect(() => {
@@ -36,14 +35,14 @@ function AdminRoute() {
     return () => controller.abort()
   }, [])
 
-  if (access === 'granted') return <AdminDashboardPage />
+  if (access === 'granted') return children
 
   return (
     <main>
       {access === 'checking' ? (
         <p role="status">Checking admin access…</p>
       ) : (
-        <p role="alert">Could not verify admin access. <a href="/admin">Try again</a> or <a href="/login">log in</a>.</p>
+        <p role="alert">Could not verify admin access. <a href={window.location.href}>Try again</a> or <a href="/login">log in</a>.</p>
       )}
     </main>
   )

@@ -1,0 +1,180 @@
+.admin-data {
+  width: min(100%, 64rem);
+  margin-inline: auto;
+  padding-top: clamp(0.5rem, 2.1vw, 1.875rem);
+  gap: clamp(2rem, 4.5vw, 4rem);
+}
+
+.admin-data__header {
+  min-height: clamp(4.5rem, 7.3vw, 6.25rem);
+  padding-inline: clamp(1rem, 2.4vw, 2.125rem);
+}
+
+.admin-data__header h1 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.35vw, 2.15rem);
+  line-height: 1.2;
+}
+
+.admin-data__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(0.3rem, 1.1vw, 0.9rem);
+  min-width: 0;
+}
+
+.admin-data__actions input {
+  width: min(16rem, 24vw);
+}
+
+.admin-data__actions button {
+  display: grid;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  color: var(--color-burgundy);
+  font-size: clamp(2rem, 3.9vw, 3.35rem);
+  font-weight: 800;
+  line-height: 0.8;
+}
+
+.admin-data__actions button:hover,
+.admin-data__actions button[aria-expanded='true'] {
+  background: rgb(128 0 32 / 10%);
+}
+
+.admin-data__search-icon {
+  position: relative;
+  width: 1.55rem;
+  height: 1.55rem;
+  margin-right: 0.35rem;
+  border: 0.16rem solid currentColor;
+  border-radius: 50%;
+}
+
+.admin-data__search-icon::after {
+  position: absolute;
+  right: -0.65rem;
+  bottom: -0.3rem;
+  width: 0.8rem;
+  height: 0.16rem;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(45deg);
+  content: '';
+}
+
+.admin-data__records {
+  min-width: 0;
+  margin-inline: clamp(0rem, 2.2vw, 2rem);
+}
+
+.admin-data__records .admin-dashboard__table-scroll th {
+  padding-block: clamp(0.85rem, 1.35vw, 1.25rem);
+  font-size: clamp(0.9rem, 1.75vw, 1.5rem);
+}
+
+.admin-data__records .admin-dashboard__table-scroll td {
+  padding-block: clamp(0.65rem, 0.95vw, 0.9rem);
+  font-size: clamp(0.85rem, 1.45vw, 1.18rem);
+  font-weight: 600;
+}
+
+.admin-data__records .admin-dashboard__pill {
+  font-size: clamp(0.75rem, 1.25vw, 1rem);
+}
+
+.admin-data__pagination {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.4rem, 0.9vw, 0.85rem);
+  margin-top: 0.85rem;
+}
+
+.admin-data__pagination button {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0 0.15rem;
+  border: 2px solid transparent;
+  background: var(--color-sidebar);
+  color: var(--color-mustard);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.admin-data__pagination button[aria-current='page'] {
+  border-color: var(--color-text);
+  box-shadow: 0.2rem 0.15rem rgb(128 0 32 / 28%);
+}
+
+.admin-data__pagination .admin-data__page-arrow {
+  background: transparent;
+  color: var(--color-sidebar);
+  font-size: 2.25rem;
+  line-height: 0.75;
+}
+
+.admin-data__page-arrow:disabled {
+  opacity: 0.45;
+}
+
+.admin-data__count {
+  margin: 0.55rem 0 0;
+  color: #9a3351;
+  font-size: clamp(0.85rem, 1.4vw, 1.125rem);
+  font-weight: 600;
+  text-align: center;
+}
+
+.admin-data__add-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-data__add-form label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+.admin-data__add-form input {
+  min-width: 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--color-burgundy);
+  border-radius: 0.4rem;
+  background: var(--color-cream);
+  color: var(--color-text);
+}
+
+.admin-data__add-form p {
+  margin: 0;
+}
+
+.admin-data__form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 38rem) {
+  .admin-data__header {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .admin-data__actions {
+    flex: 1;
+  }
+
+  .admin-data__actions input {
+    flex: 1;
+    width: 0;
+  }
+}
