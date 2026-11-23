@@ -1,6 +1,6 @@
 import PasswordField from '../../components/common/PasswordField'
 import AuthPageLayout from '../../components/layout/AuthPageLayout'
-import { logIn } from '../../services/auth'
+import { authTokenStorageKey, logIn } from '../../services/auth'
 
 async function submitLogin(fields: FormData) {
   const username = String(fields.get('username') ?? '')
@@ -9,7 +9,7 @@ async function submitLogin(fields: FormData) {
 
   const token = await logIn({ username, password })
   try {
-    sessionStorage.setItem('project-scale.auth-token', token)
+    sessionStorage.setItem(authTokenStorageKey, token)
   } catch {
     throw new Error('Your browser could not save the login session. Check your browser settings and try again.')
   }

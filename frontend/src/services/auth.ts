@@ -1,3 +1,5 @@
+export const authTokenStorageKey = 'project-scale.auth-token'
+
 type LoginCredentials = {
   username: string
   password: string
