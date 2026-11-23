@@ -1,13 +1,17 @@
 package com.projectscale.projectscale.controller;
 
+import com.projectscale.projectscale.auth.UserPrincipal;
 import com.projectscale.projectscale.dto.LoginRequest;
 import com.projectscale.projectscale.dto.LoginResponse;
+import com.projectscale.projectscale.dto.SessionResponse;
 import com.projectscale.projectscale.dto.SignupRequest;
 import com.projectscale.projectscale.dto.SignupResponse;
 import com.projectscale.projectscale.services.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,6 +44,13 @@ public class AuthController {
         LoginResponse response = authService.login(request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/session")
+    public ResponseEntity<SessionResponse> session(@AuthenticationPrincipal UserPrincipal principal) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(new SessionResponse(principal.getRole()));
     }
 
     //  User Logout

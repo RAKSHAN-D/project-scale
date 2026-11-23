@@ -1,6 +1,6 @@
 import PasswordField from '../../components/common/PasswordField'
 import AuthPageLayout from '../../components/layout/AuthPageLayout'
-import { authTokenStorageKey, logIn } from '../../services/auth'
+import { authTokenStorageKey, getSessionRole, logIn } from '../../services/auth'
 
 async function submitLogin(fields: FormData) {
   const username = String(fields.get('username') ?? '')
@@ -8,10 +8,18 @@ async function submitLogin(fields: FormData) {
   if (!username.trim()) throw new Error('Enter your username.')
 
   const token = await logIn({ username, password })
+  const role = await getSessionRole(token)
+  if (!role) throw new Error('Your session could not be verified. Log in again.')
+
   try {
     sessionStorage.setItem(authTokenStorageKey, token)
   } catch {
     throw new Error('Your browser could not save the login session. Check your browser settings and try again.')
+  }
+
+  if (role === 'ADMIN') {
+    window.location.replace('/admin')
+    return
   }
 
   return 'You’re logged in.'

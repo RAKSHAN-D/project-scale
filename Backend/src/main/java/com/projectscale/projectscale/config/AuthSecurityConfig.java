@@ -34,7 +34,7 @@ public class AuthSecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/auth/login", "/auth/signup", "/auth/logout").permitAll()
                 .anyRequest().authenticated()
             )
 

@@ -9,6 +9,8 @@ type SignupCredentials = LoginCredentials & {
   email: string
 }
 
+type UserRole = 'ADMIN' | 'FIRST_CLASS' | 'SECOND_CLASS'
+
 type AuthErrorBody = {
   message?: unknown
   fieldErrors?: Record<string, unknown>
@@ -63,4 +65,21 @@ export async function logIn(credentials: LoginCredentials) {
   }
 
   return session.token
+}
+
+export async function getSessionRole(token: string, signal?: AbortSignal): Promise<UserRole | null> {
+  const response = await fetch('/auth/session', {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+    cache: 'no-store',
+    signal,
+  })
+
+  if (response.status === 401 || response.status === 403) return null
+  if (!response.ok) throw new Error('Could not verify your session. Try again.')
+
+  const session: { role?: unknown } | null = await response.json().catch(() => null)
+  const role = session?.role
+  if (role === 'ADMIN' || role === 'FIRST_CLASS' || role === 'SECOND_CLASS') return role
+
+  throw new Error('Could not verify your session. Try again.')
 }

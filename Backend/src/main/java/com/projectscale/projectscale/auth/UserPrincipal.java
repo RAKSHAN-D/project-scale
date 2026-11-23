@@ -1,6 +1,7 @@
 package com.projectscale.projectscale.auth;
 
 import com.projectscale.projectscale.entity.User;
+import com.projectscale.projectscale.entity.UserRole;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,7 @@ public class UserPrincipal implements UserDetails {
     private Long id;
     private String username;
     private String password;
+    private final UserRole role;
 
     private Collection<? extends GrantedAuthority> authorities;
 
@@ -22,16 +24,21 @@ public class UserPrincipal implements UserDetails {
         this.id = user.getId();
         this.username = user.getUsername();
         this.password = user.getPasswordHash();
+        this.role = user.getRole();
 
         this.authorities = List.of(
                 new SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name()
+                        "ROLE_" + role.name()
                 )
         );
     }
 
     public Long getId() {
         return id;
+    }
+
+    public UserRole getRole() {
+        return role;
     }
 
     @Override
