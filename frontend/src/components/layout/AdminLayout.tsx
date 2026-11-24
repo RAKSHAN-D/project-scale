@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react'
 import { authTokenStorageKey } from '../../services/auth'
 import '../../styles/admin-dashboard.css'
 
+const sidebarStorageKey = 'project-scale.admin-sidebar-collapsed'
+
 const navigation = [
   { section: 'dashboard', label: 'Dashboard', href: '/admin', initial: 'D' },
   { section: 'users', label: 'Users', href: '/admin?view=users', initial: 'U' },
@@ -15,8 +17,13 @@ type AdminLayoutProps = {
 }
 
 function AdminLayout({ section, children }: AdminLayoutProps) {
-  const isDataModule = section === 'hot' || section === 'cold'
-  const [collapsed, setCollapsed] = useState(isDataModule)
+  const [collapsed, setCollapsed] = useState(() => sessionStorage.getItem(sidebarStorageKey) === 'true')
+
+  function toggleSidebar() {
+    const nextCollapsed = !collapsed
+    sessionStorage.setItem(sidebarStorageKey, String(nextCollapsed))
+    setCollapsed(nextCollapsed)
+  }
 
   return (
     <main className={`admin-dashboard${collapsed ? ' admin-dashboard--collapsed' : ''}`}>
@@ -27,7 +34,7 @@ function AdminLayout({ section, children }: AdminLayoutProps) {
           aria-label={collapsed ? 'Expand sidebar' : 'Minimize sidebar'}
           aria-expanded={!collapsed}
           aria-controls="admin-navigation"
-          onClick={() => setCollapsed((wasCollapsed) => !wasCollapsed)}
+          onClick={toggleSidebar}
         >
           <span className="admin-dashboard__nav-label">{collapsed ? 'Expand' : 'Minimize'}</span>
           <span className="admin-dashboard__arrow" aria-hidden="true">{collapsed ? '▸' : '◂'}</span>
