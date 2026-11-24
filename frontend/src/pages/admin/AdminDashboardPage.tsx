@@ -21,13 +21,12 @@ const chartTicks = [0, 20, 40, 60, 80]
 const chartMax = chartTicks[chartTicks.length - 1]
 
 function AdminDashboardPage() {
-  const [showAll, setShowAll] = useState(() => new URLSearchParams(window.location.search).get('view') === 'users')
   const [search, setSearch] = useState('')
   const matchingResidents = filterResidents(residents, search)
-  const visibleResidents = showAll || search.trim() ? matchingResidents : matchingResidents.slice(0, 6)
+  const visibleResidents = search.trim() ? matchingResidents : matchingResidents.slice(0, 6)
 
   return (
-    <AdminLayout section={showAll ? 'users' : 'dashboard'}>
+    <AdminLayout section="dashboard">
       <div className="admin-dashboard__content">
         <header className="admin-dashboard__header">
           <input type="search" aria-label="Search registrations" placeholder="Search ..." value={search} onChange={(event) => setSearch(event.target.value)} />
@@ -46,10 +45,8 @@ function AdminDashboardPage() {
         <div className="admin-dashboard__panels">
           <section className="admin-dashboard__panel" aria-labelledby="registrations-heading">
             <div className="admin-dashboard__panel-heading">
-              <h2 id="registrations-heading">{showAll ? 'All Users' : 'Recent Registrations'}</h2>
-              <button className="admin-dashboard__pill" type="button" onClick={() => setShowAll(!showAll)}>
-                {showAll ? 'View recent' : 'View all users →'}
-              </button>
+              <h2 id="registrations-heading">Recent Registrations</h2>
+              <a className="admin-dashboard__pill" href="/admin?view=users">View all users →</a>
             </div>
             <AdminResidentTable residents={visibleResidents} labelledBy="registrations-heading" />
           </section>

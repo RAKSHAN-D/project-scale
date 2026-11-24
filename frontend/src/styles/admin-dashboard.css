@@ -234,7 +234,7 @@
   box-shadow: inset 0 0 0 0.28rem var(--color-burgundy);
 }
 
-.admin-dashboard__panel h2 {
+.admin-dashboard__panel :is(h1, h2) {
   margin: 0;
   color: var(--color-cream);
   font-size: clamp(1.15rem, 2vw, 1.9rem);
@@ -264,6 +264,12 @@
 
 .admin-dashboard__pill:hover {
   background: var(--color-cream);
+}
+
+a.admin-dashboard__pill {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .admin-dashboard__table-scroll {
