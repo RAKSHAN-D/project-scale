@@ -9,6 +9,8 @@ function AdminResidentTable({ residents, labelledBy }: { residents: Resident[]; 
       labelledBy={labelledBy}
       detailsTitle="Resident details"
       emptyMessage="No registrations match your search."
+      recordKey={(resident) => resident.email}
+      recordLabel={(resident) => resident.username}
     />
   )
 }

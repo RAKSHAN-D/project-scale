@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 
 type AdminRecordTableProps<Row> = {
   records: readonly Row[]
@@ -6,10 +6,13 @@ type AdminRecordTableProps<Row> = {
   labelledBy: string
   detailsTitle: string
   emptyMessage: string
+  recordKey: (record: Row) => string | number
+  recordLabel: (record: Row) => string
+  renderDetails?: (record: Row) => ReactNode
 }
 
-function AdminRecordTable<Row extends { username: string; email: string }>({
-  records, fields, labelledBy, detailsTitle, emptyMessage,
+function AdminRecordTable<Row>({
+  records, fields, labelledBy, detailsTitle, emptyMessage, recordKey, recordLabel, renderDetails,
 }: AdminRecordTableProps<Row>) {
   const [selected, setSelected] = useState<Row | null>(null)
   const details = useRef<HTMLDialogElement>(null)
@@ -32,10 +35,10 @@ function AdminRecordTable<Row extends { username: string; email: string }>({
           </thead>
           <tbody>
             {records.map((record) => (
-              <tr key={record.email}>
+              <tr key={recordKey(record)}>
                 {fields.map(({ name }) => <td key={name}>{String(record[name] ?? '')}</td>)}
                 <td>
-                  <button className="admin-dashboard__pill" type="button" aria-label={`View ${record.username}`} onClick={() => openDetails(record)}>
+                  <button className="admin-dashboard__pill" type="button" aria-label={`View ${recordLabel(record)}`} onClick={() => openDetails(record)}>
                     View
                   </button>
                 </td>
@@ -48,9 +51,12 @@ function AdminRecordTable<Row extends { username: string; email: string }>({
       <dialog ref={details} className="admin-dashboard__details" aria-labelledby={headingId} onClose={() => setSelected(null)}>
         <h2 id={headingId}>{detailsTitle}</h2>
         {selected && (
-          <dl>
-            {fields.map(({ name, label }) => <div key={name}><dt>{label}</dt><dd>{String(selected[name] ?? '')}</dd></div>)}
-          </dl>
+          <>
+            <dl>
+              {fields.map(({ name, label }) => <div key={name}><dt>{label}</dt><dd>{String(selected[name] ?? '')}</dd></div>)}
+            </dl>
+            {renderDetails?.(selected)}
+          </>
         )}
         <form method="dialog"><button className="admin-dashboard__pill" type="submit">Close</button></form>
       </dialog>

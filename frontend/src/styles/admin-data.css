@@ -178,3 +178,42 @@
     width: 0;
   }
 }
+
+.admin-dashboard__details:has(.admin-data__item-value) {
+  width: min(30rem, calc(100% - 2rem));
+}
+
+.admin-data__item-value {
+  margin-block: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-data__item-value h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+}
+
+.admin-data__item-value > dl {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  margin: 0;
+}
+
+.admin-data__item-value > dl > div {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgb(128 0 32 / 22%);
+  border-radius: 0.6rem;
+  background: rgb(255 247 230 / 45%);
+}
+
+.admin-data__item-value dt {
+  font-size: 0.78rem;
+}
+
+.admin-data__item-value dd {
+  margin-top: 0.15rem;
+  color: var(--color-text);
+}
+
+.admin-data__item-value dd :is(dl, ul) {
+  margin-block: 0.25rem 0;
+}
