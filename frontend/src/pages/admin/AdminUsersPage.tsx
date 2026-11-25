@@ -1,6 +1,20 @@
 import AdminLayout from '../../components/layout/AdminLayout'
-import AdminResidentTable from './AdminResidentTable'
+import AdminRecordTable from './AdminRecordTable'
 import { residents } from './adminResidents'
+
+const userFields = [
+  { name: 'id', label: 'User ID' },
+  { name: 'username', label: 'Username' },
+  { name: 'email', label: 'Email' },
+  { name: 'role', label: 'Role' },
+] as const
+
+const users = residents.map(({ username, email }, index) => ({
+  id: index + 1,
+  username,
+  email,
+  role: 'SECOND_CLASS',
+}))
 
 function AdminUsersPage() {
   return (
@@ -10,7 +24,13 @@ function AdminUsersPage() {
           <div className="admin-dashboard__panel-heading">
             <h1 id="all-users-heading">All Users</h1>
           </div>
-          <AdminResidentTable residents={residents} labelledBy="all-users-heading" />
+          <AdminRecordTable
+            records={users}
+            fields={userFields}
+            labelledBy="all-users-heading"
+            detailsTitle="User details"
+            emptyMessage="No users to show."
+          />
         </section>
       </div>
     </AdminLayout>
