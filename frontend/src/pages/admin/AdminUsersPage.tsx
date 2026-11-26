@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
+import AdminPagination, { getAdminPage } from './AdminPagination'
 import AdminRecordTable from './AdminRecordTable'
 import { createAdminUser, getAdminUsers } from '../../services/adminData'
 import { useAdminRecords } from './useAdminRecords'
@@ -18,6 +19,8 @@ function AdminUsersPage() {
   const [pending, setPending] = useState(false)
   const [createError, setCreateError] = useState('')
   const [notice, setNotice] = useState('')
+  const [page, setPage] = useState(1)
+  const pagination = getAdminPage(state.status === 'ready' ? state.records.length : 0, page)
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -54,16 +57,17 @@ function AdminUsersPage() {
 
   return (
     <AdminLayout section="users">
-      <div className="admin-dashboard__content">
-        <section className="admin-dashboard__panel" aria-labelledby="all-users-heading">
-          <div className="admin-dashboard__panel-heading">
-            <h1 id="all-users-heading">All Users</h1>
-            <div className="admin-data__actions">
-              <button type="button" aria-label="Create user" onClick={() => { setNotice(''); createDialog.current?.showModal() }}>
-                <span aria-hidden="true">+</span>
-              </button>
-            </div>
+      <div className="admin-dashboard__content admin-data">
+        <header className="admin-dashboard__header admin-data__header">
+          <h1 id="all-users-heading">All Users</h1>
+          <div className="admin-data__actions">
+            <button type="button" aria-label="Create user" onClick={() => { setNotice(''); createDialog.current?.showModal() }}>
+              <span aria-hidden="true">+</span>
+            </button>
           </div>
+        </header>
+
+        <section className="admin-data__records" aria-labelledby="all-users-heading">
           {notice && <p role="status">{notice}</p>}
           {state.status === 'loading' && <p role="status">Loading users…</p>}
           {state.status === 'error' && (
@@ -73,15 +77,18 @@ function AdminUsersPage() {
             </div>
           )}
           {state.status === 'ready' && (
-            <AdminRecordTable
-              records={state.records}
-              fields={userFields}
-              labelledBy="all-users-heading"
-              detailsTitle="User details"
-              emptyMessage="No users to show."
-              recordKey={(user) => user.id}
-              recordLabel={(user) => user.username}
-            />
+            <>
+              <AdminRecordTable
+                records={state.records.slice(pagination.offset, pagination.end)}
+                fields={userFields}
+                labelledBy="all-users-heading"
+                detailsTitle="User details"
+                emptyMessage="No users to show."
+                recordKey={(user) => user.id}
+                recordLabel={(user) => user.username}
+              />
+              <AdminPagination pagination={pagination} recordLabel="users" onPageChange={setPage} />
+            </>
           )}
         </section>
       </div>

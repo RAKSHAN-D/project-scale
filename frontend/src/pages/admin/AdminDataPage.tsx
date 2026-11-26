@@ -2,12 +2,11 @@ import { useRef, useState, type FormEvent } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { getHotItems } from '../../services/adminData'
 import AdminHotItemTable from './AdminHotItemTable'
+import AdminPagination, { getAdminPage } from './AdminPagination'
 import AdminResidentTable from './AdminResidentTable'
 import { coldResidents, filterResidents, residentFields, type Resident } from './adminResidents'
 import { useAdminRecords } from './useAdminRecords'
 import '../../styles/admin-data.css'
-
-const pageSize = 7
 
 function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
   const isHot = kind === 'hot'
@@ -24,10 +23,7 @@ function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
   const filteredHotItems = query ? hotItems.filter((item) => JSON.stringify(item).toLowerCase().includes(query)) : hotItems
   const filteredResidents = filterResidents(records, search)
   const count = isHot ? filteredHotItems.length : filteredResidents.length
-  const lastPage = Math.max(1, Math.ceil(count / pageSize))
-  const firstPageButton = Math.max(1, Math.min(page - 1, lastPage - 2))
-  const pages = Array.from({ length: Math.min(3, lastPage) }, (_, index) => firstPageButton + index)
-  const offset = (page - 1) * pageSize
+  const pagination = getAdminPage(count, page)
   const recordsReady = !isHot || hotData.status === 'ready'
   const recordLabel = isHot ? 'items' : 'users'
   const searchLabel = isHot ? 'Search hot data items' : 'Search residents'
@@ -100,22 +96,9 @@ function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
             </div>
           )}
           {recordsReady && (isHot
-            ? <AdminHotItemTable records={filteredHotItems.slice(offset, offset + pageSize)} labelledBy="admin-data-title" />
-            : <AdminResidentTable residents={filteredResidents.slice(offset, offset + pageSize)} labelledBy="admin-data-title" />)}
-          {recordsReady && <nav className="admin-data__pagination" aria-label={`Pages of ${recordLabel}`}>
-            <button className="admin-data__page-arrow" type="button" aria-label="Previous page" disabled={page === 1} onClick={() => setPage(page - 1)}>‹</button>
-            {pages.map((number) => (
-              <button key={number} type="button" aria-label={`Page ${number}`} aria-current={number === page ? 'page' : undefined} onClick={() => setPage(number)}>
-                {number}
-              </button>
-            ))}
-            <button className="admin-data__page-arrow" type="button" aria-label="Next page" disabled={page === lastPage} onClick={() => setPage(page + 1)}>›</button>
-          </nav>}
-          {recordsReady && (
-            <p className="admin-data__count" role="status">
-              {count ? `Showing ${offset + 1}–${Math.min(offset + pageSize, count)} of ${count} ${recordLabel}` : `Showing 0 ${recordLabel}`}
-            </p>
-          )}
+            ? <AdminHotItemTable records={filteredHotItems.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />
+            : <AdminResidentTable residents={filteredResidents.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />)}
+          {recordsReady && <AdminPagination pagination={pagination} recordLabel={recordLabel} onPageChange={setPage} />}
         </section>
       </div>
 
