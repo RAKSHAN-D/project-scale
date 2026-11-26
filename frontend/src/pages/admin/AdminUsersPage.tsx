@@ -1,9 +1,10 @@
 import { useRef, useState, type FormEvent } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
+import AdminIdSearch from './AdminIdSearch'
 import AdminPagination, { getAdminPage } from './AdminPagination'
 import AdminRecordTable from './AdminRecordTable'
-import { createAdminUser, getAdminUsers } from '../../services/adminData'
-import { useAdminRecords } from './useAdminRecords'
+import { createAdminUser, getAdminUserById, getAdminUsers } from '../../services/adminData'
+import { useAdminRecordsByUserId } from './useAdminRecords'
 import '../../styles/admin-data.css'
 
 const userFields = [
@@ -14,7 +15,7 @@ const userFields = [
 ] as const
 
 function AdminUsersPage() {
-  const { state, retry } = useAdminRecords(getAdminUsers)
+  const { state, retry, userId, searchByUserId } = useAdminRecordsByUserId(getAdminUsers, getAdminUserById)
   const createDialog = useRef<HTMLDialogElement>(null)
   const [pending, setPending] = useState(false)
   const [createError, setCreateError] = useState('')
@@ -64,6 +65,7 @@ function AdminUsersPage() {
             <button type="button" aria-label="Create user" onClick={() => { setNotice(''); createDialog.current?.showModal() }}>
               <span aria-hidden="true">+</span>
             </button>
+            <AdminIdSearch userId={userId} onSearch={(id) => { setPage(1); searchByUserId(id) }} />
           </div>
         </header>
 
@@ -83,7 +85,7 @@ function AdminUsersPage() {
                 fields={userFields}
                 labelledBy="all-users-heading"
                 detailsTitle="User details"
-                emptyMessage="No users to show."
+                emptyMessage={userId === null ? 'No users to show.' : `No user found with ID ${userId}.`}
                 recordKey={(user) => user.id}
                 recordLabel={(user) => user.username}
               />

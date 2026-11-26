@@ -1,32 +1,19 @@
 import { useRef, useState, type FormEvent } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
-import { getHotItems } from '../../services/adminData'
-import AdminHotItemTable from './AdminHotItemTable'
 import AdminPagination, { getAdminPage } from './AdminPagination'
 import AdminResidentTable from './AdminResidentTable'
 import { coldResidents, filterResidents, residentFields, type Resident } from './adminResidents'
-import { useAdminRecords } from './useAdminRecords'
 import '../../styles/admin-data.css'
 
-function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
-  const isHot = kind === 'hot'
-  const { state: hotData, retry } = useAdminRecords(isHot ? getHotItems : null)
+function AdminDataPage() {
   const [records, setRecords] = useState(coldResidents)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [addError, setAddError] = useState('')
   const addDialog = useRef<HTMLDialogElement>(null)
-  const title = isHot ? 'Hot-Data Module' : 'Cold-Data Module'
-  const query = search.trim().toLowerCase()
-  const hotItems = hotData.status === 'ready' ? hotData.records : []
-  const filteredHotItems = query ? hotItems.filter((item) => JSON.stringify(item).toLowerCase().includes(query)) : hotItems
   const filteredResidents = filterResidents(records, search)
-  const count = isHot ? filteredHotItems.length : filteredResidents.length
-  const pagination = getAdminPage(count, page)
-  const recordsReady = !isHot || hotData.status === 'ready'
-  const recordLabel = isHot ? 'items' : 'users'
-  const searchLabel = isHot ? 'Search hot data items' : 'Search residents'
+  const pagination = getAdminPage(filteredResidents.length, page)
 
   function updateSearch(value: string) {
     setSearch(value)
@@ -61,48 +48,37 @@ function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
   }
 
   return (
-    <AdminLayout section={kind}>
+    <AdminLayout section="cold">
       <div className="admin-dashboard__content admin-data">
         <header className="admin-dashboard__header admin-data__header">
-          <h1 id="admin-data-title">{title}</h1>
+          <h1 id="admin-data-title">Cold-Data Module</h1>
           <div className="admin-data__actions">
             {searchOpen && (
               <input
                 type="search"
-                aria-label={searchLabel}
+                aria-label="Search residents"
                 placeholder="Search ..."
                 value={search}
                 onChange={(event) => updateSearch(event.target.value)}
                 autoFocus
               />
             )}
-            {!isHot && (
-              <button type="button" aria-label="Add sample resident" onClick={() => addDialog.current?.showModal()}>
-                <span aria-hidden="true">+</span>
-              </button>
-            )}
-            <button type="button" aria-label={searchOpen ? 'Close search' : searchLabel} aria-expanded={searchOpen} onClick={toggleSearch}>
+            <button type="button" aria-label="Add sample resident" onClick={() => addDialog.current?.showModal()}>
+              <span aria-hidden="true">+</span>
+            </button>
+            <button type="button" aria-label={searchOpen ? 'Close search' : 'Search residents'} aria-expanded={searchOpen} onClick={toggleSearch}>
               <span className="admin-data__search-icon" aria-hidden="true" />
             </button>
           </div>
         </header>
 
         <section className="admin-data__records" aria-labelledby="admin-data-title">
-          {isHot && hotData.status === 'loading' && <p role="status">Loading hot data…</p>}
-          {isHot && hotData.status === 'error' && (
-            <div>
-              <p role="alert">{hotData.message}</p>
-              <button className="admin-dashboard__pill" type="button" onClick={retry}>Try again</button>
-            </div>
-          )}
-          {recordsReady && (isHot
-            ? <AdminHotItemTable records={filteredHotItems.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />
-            : <AdminResidentTable residents={filteredResidents.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />)}
-          {recordsReady && <AdminPagination pagination={pagination} recordLabel={recordLabel} onPageChange={setPage} />}
+          <AdminResidentTable residents={filteredResidents.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />
+          <AdminPagination pagination={pagination} recordLabel="users" onPageChange={setPage} />
         </section>
       </div>
 
-      {!isHot && <dialog ref={addDialog} className="admin-dashboard__details" aria-labelledby="add-resident-title" onClose={() => setAddError('')}>
+      <dialog ref={addDialog} className="admin-dashboard__details" aria-labelledby="add-resident-title" onClose={() => setAddError('')}>
         <h2 id="add-resident-title">Add sample resident</h2>
         <form className="admin-data__add-form" method="post" onSubmit={addResident}>
           {residentFields.map(({ name, label }) => (
@@ -114,7 +90,7 @@ function AdminDataPage({ kind }: { kind: 'hot' | 'cold' }) {
             <button className="admin-dashboard__pill" type="submit">Add resident</button>
           </div>
         </form>
-      </dialog>}
+      </dialog>
     </AdminLayout>
   )
 }

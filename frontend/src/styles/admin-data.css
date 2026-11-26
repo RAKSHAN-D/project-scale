@@ -28,7 +28,7 @@
   width: min(16rem, 24vw);
 }
 
-.admin-data__actions button {
+.admin-data__actions > button {
   display: grid;
   flex: none;
   width: 2.75rem;
@@ -44,9 +44,26 @@
   line-height: 0.8;
 }
 
-.admin-data__actions button:hover,
-.admin-data__actions button[aria-expanded='true'] {
+.admin-data__actions > button:hover,
+.admin-data__actions > button[aria-expanded='true'] {
   background: rgb(128 0 32 / 10%);
+}
+
+.admin-data__id-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  width: min(14rem, 32vw);
+  min-width: 0;
+}
+
+.admin-data__actions .admin-data__id-search input {
+  width: 100%;
+}
+
+.admin-data__id-search small {
+  grid-column: 1 / -1;
 }
 
 .admin-data__search-icon {
@@ -157,6 +174,29 @@
   margin: 0;
 }
 
+.admin-data__hot-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.75rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid rgb(128 0 32 / 35%);
+  border-radius: 0.5rem;
+}
+
+.admin-data__hot-fields legend {
+  padding-inline: 0.25rem;
+  font-weight: 600;
+}
+
+.admin-data__add-form .admin-data__checkbox {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .admin-data__form-actions {
   display: flex;
   justify-content: flex-end;
@@ -176,6 +216,10 @@
   .admin-data__actions input {
     flex: 1;
     width: 0;
+  }
+
+  .admin-data__id-search {
+    width: min(14rem, 55vw);
   }
 }
 

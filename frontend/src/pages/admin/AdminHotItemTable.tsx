@@ -55,7 +55,7 @@ function HotItemValue({ value }: { value: HotItem['value'] }) {
   )
 }
 
-function AdminHotItemTable({ records, labelledBy }: { records: HotItem[]; labelledBy: string }) {
+function AdminHotItemTable({ records, labelledBy, emptyMessage }: { records: HotItem[]; labelledBy: string; emptyMessage: string }) {
   const rows = records.map((item) => ({
     ...item,
     fullName: typeof item.value?.fullName === 'string' ? item.value.fullName : '—',
@@ -68,7 +68,7 @@ function AdminHotItemTable({ records, labelledBy }: { records: HotItem[]; labell
       fields={fields}
       labelledBy={labelledBy}
       detailsTitle="Hot data item"
-      emptyMessage="No hot data items to show."
+      emptyMessage={emptyMessage}
       recordKey={(item) => item.id}
       recordLabel={(item) => `${item.itemKey} (item ${item.id})`}
       renderDetails={(item) => (

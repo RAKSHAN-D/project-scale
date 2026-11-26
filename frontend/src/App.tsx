@@ -1,6 +1,7 @@
 import HomePage from './pages/HomePage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminDataPage from './pages/admin/AdminDataPage'
+import AdminHotDataPage from './pages/admin/AdminHotDataPage'
 import AdminRoute from './pages/admin/AdminRoute'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
 import LoginPage from './pages/auth/LoginPage'
@@ -15,9 +16,9 @@ function App() {
         </AdminRoute>
       )
     case '/admin/hot-data':
-      return <AdminRoute><AdminDataPage kind="hot" /></AdminRoute>
+      return <AdminRoute><AdminHotDataPage /></AdminRoute>
     case '/admin/cold-data':
-      return <AdminRoute><AdminDataPage kind="cold" /></AdminRoute>
+      return <AdminRoute><AdminDataPage /></AdminRoute>
     case '/signup':
       return <SignUpPage />
     case '/login':
