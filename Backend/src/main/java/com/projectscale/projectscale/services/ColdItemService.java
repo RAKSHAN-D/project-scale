@@ -7,19 +7,34 @@ import org.springframework.stereotype.Service;
 
 import com.projectscale.projectscale.dto.ColdItemRequest;
 import com.projectscale.projectscale.dto.ColdItemResponse;
+import com.projectscale.projectscale.dto.ColdDataSummaryPage;
 import com.projectscale.projectscale.entity.ColdItem;
 import com.projectscale.projectscale.entity.User;
 import com.projectscale.projectscale.repository.ColdItemRepository;
+import com.projectscale.projectscale.repository.ColdDataSummaryRepository;
 import com.projectscale.projectscale.repository.UserRepository;
 
 @Service
 public class ColdItemService {
     private final ColdItemRepository coldItemRepository;
     private final UserRepository userRepository;
-    public ColdItemService(ColdItemRepository coldItemRepository, UserRepository userRepository) {
+    private final ColdDataSummaryRepository coldDataSummaryRepository;
+
+    public ColdItemService(ColdItemRepository coldItemRepository, UserRepository userRepository,
+            ColdDataSummaryRepository coldDataSummaryRepository) {
         this.coldItemRepository = coldItemRepository;   // Constructor injection of the repository
         this.userRepository = userRepository;   // Constructor injection of the user repository
+        this.coldDataSummaryRepository = coldDataSummaryRepository;
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public ColdDataSummaryPage getSummaries(String search, int page, int size) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new IllegalArgumentException("Page must be nonnegative and size must be between 1 and 100.");
+        }
+        return coldDataSummaryRepository.findSummaries(search.trim(), page, size);
+    }
+
     @PreAuthorize("hasRole('ADMIN') or #request.userId == authentication.principal.id")
     public ColdItemResponse addColdData(ColdItemRequest request) {
 

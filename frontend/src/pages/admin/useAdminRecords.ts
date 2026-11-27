@@ -2,26 +2,33 @@ import { useCallback, useEffect, useState } from 'react'
 
 type LoadState<T> =
   | { status: 'loading' }
-  | { status: 'ready'; records: T[] }
+  | { status: 'ready'; data: T }
   | { status: 'error'; message: string }
 
-function useAdminRecords<T>(loadRecords: (signal: AbortSignal) => Promise<T[]>) {
+export function useAdminRequest<T>(loadRecords: (signal: AbortSignal) => Promise<T>) {
   const [request, setRequest] = useState(0)
-  const [state, setState] = useState<LoadState<T>>({ status: 'loading' })
+  const [result, setResult] = useState<{
+    source: typeof loadRecords
+    request: number
+    state: LoadState<T>
+  } | null>(null)
+  const state: LoadState<T> = result?.source === loadRecords && result.request === request
+    ? result.state
+    : { status: 'loading' }
 
   useEffect(() => {
     const controller = new AbortController()
 
     async function load() {
       try {
-        const records = await loadRecords(controller.signal)
-        if (!controller.signal.aborted) setState({ status: 'ready', records })
+        const data = await loadRecords(controller.signal)
+        if (!controller.signal.aborted) setResult({ source: loadRecords, request, state: { status: 'ready', data } })
       } catch (error) {
         if (controller.signal.aborted) return
         const message = error instanceof Error && !(error instanceof TypeError)
           ? error.message
           : 'Could not reach the backend.'
-        setState({ status: 'error', message })
+        setResult({ source: loadRecords, request, state: { status: 'error', message } })
       }
     }
 
@@ -30,7 +37,6 @@ function useAdminRecords<T>(loadRecords: (signal: AbortSignal) => Promise<T[]>) 
   }, [loadRecords, request])
 
   function retry() {
-    setState({ status: 'loading' })
     setRequest((previous) => previous + 1)
   }
 
@@ -45,12 +51,12 @@ export function useAdminRecordsByUserId<T>(
   const loadRecords = useCallback((signal: AbortSignal) => {
     return userId === null ? loadAll(signal) : loadByUserId(userId, signal)
   }, [loadAll, loadByUserId, userId])
-  const { state, retry } = useAdminRecords(loadRecords)
+  const { state, retry } = useAdminRequest(loadRecords)
 
   function searchByUserId(nextUserId: number | null) {
     setUserId(nextUserId)
-    retry()
+    if (nextUserId === userId) retry()
   }
 
-  return { state, retry, userId, searchByUserId }
+  return { state: state.status === 'ready' ? { status: 'ready' as const, records: state.data } : state, retry, userId, searchByUserId }
 }

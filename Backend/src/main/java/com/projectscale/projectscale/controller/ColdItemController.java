@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.* ;
 import com.projectscale.projectscale.dto.ColdItemRequest;
 import com.projectscale.projectscale.dto.ColdItemResponse;
+import com.projectscale.projectscale.dto.ColdDataSummaryPage;
 import com.projectscale.projectscale.services.ColdItemService;
 @RestController
 @RequestMapping("/api/cold-data")
@@ -28,6 +29,13 @@ public class ColdItemController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ColdItemResponse>> getColdDataForUser(@PathVariable Long userId) {
         return ResponseEntity.ok(coldItemService.getColdDataForUser(userId));
+    }
+    @GetMapping("/summary")
+    public ResponseEntity<ColdDataSummaryPage> getSummaries(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "7") int size) {
+        return ResponseEntity.ok(coldItemService.getSummaries(search, page, size));
     }
     @GetMapping("/user/{userId}/item/{itemId}")
     public ResponseEntity<ColdItemResponse> getColdDataForUserAndItem(

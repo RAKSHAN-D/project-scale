@@ -1,27 +1,28 @@
-import { useId, useRef, useState, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 type AdminRecordTableProps<Row> = {
   records: readonly Row[]
   fields: readonly { name: Extract<keyof Row, string>; label: string }[]
   labelledBy: string
-  detailsTitle: string
+  detailsTitle: string | ((record: Row) => string)
   emptyMessage: string
   recordKey: (record: Row) => string | number
   recordLabel: (record: Row) => string
   renderDetails?: (record: Row) => ReactNode
+  showSummaryInDetails?: boolean
 }
 
 function AdminRecordTable<Row>({
-  records, fields, labelledBy, detailsTitle, emptyMessage, recordKey, recordLabel, renderDetails,
+  records, fields, labelledBy, detailsTitle, emptyMessage, recordKey, recordLabel, renderDetails, showSummaryInDetails = true,
 }: AdminRecordTableProps<Row>) {
   const [selected, setSelected] = useState<Row | null>(null)
   const details = useRef<HTMLDialogElement>(null)
   const headingId = useId()
 
-  function openDetails(record: Row) {
-    setSelected(record)
-    details.current?.showModal()
-  }
+  useLayoutEffect(() => {
+    const dialog = details.current
+    if (selected && dialog && !dialog.open) dialog.showModal()
+  }, [selected])
 
   return (
     <>
@@ -38,7 +39,7 @@ function AdminRecordTable<Row>({
               <tr key={recordKey(record)}>
                 {fields.map(({ name }) => <td key={name}>{String(record[name] ?? '')}</td>)}
                 <td>
-                  <button className="admin-dashboard__pill" type="button" aria-label={`View ${recordLabel(record)}`} onClick={() => openDetails(record)}>
+                  <button className="admin-dashboard__pill" type="button" aria-label={`View ${recordLabel(record)}`} onClick={() => setSelected(record)}>
                     View
                   </button>
                 </td>
@@ -49,12 +50,14 @@ function AdminRecordTable<Row>({
         </table>
       </div>
       <dialog ref={details} className="admin-dashboard__details" aria-labelledby={headingId} onClose={() => setSelected(null)}>
-        <h2 id={headingId}>{detailsTitle}</h2>
+        <h2 id={headingId}>{typeof detailsTitle === 'string' ? detailsTitle : selected && detailsTitle(selected)}</h2>
         {selected && (
           <>
-            <dl>
-              {fields.map(({ name, label }) => <div key={name}><dt>{label}</dt><dd>{String(selected[name] ?? '')}</dd></div>)}
-            </dl>
+            {showSummaryInDetails && (
+              <dl>
+                {fields.map(({ name, label }) => <div key={name}><dt>{label}</dt><dd>{String(selected[name] ?? '')}</dd></div>)}
+              </dl>
+            )}
             {renderDetails?.(selected)}
           </>
         )}

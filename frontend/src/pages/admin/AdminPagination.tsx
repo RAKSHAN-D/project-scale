@@ -1,10 +1,10 @@
-const pageSize = 7
+export const adminPageSize = 7
 
 export function getAdminPage(count: number, requestedPage: number) {
-  const lastPage = Math.max(1, Math.ceil(count / pageSize))
+  const lastPage = Math.max(1, Math.ceil(count / adminPageSize))
   const page = Math.min(requestedPage, lastPage)
-  const offset = (page - 1) * pageSize
-  const end = Math.min(offset + pageSize, count)
+  const offset = (page - 1) * adminPageSize
+  const end = Math.min(offset + adminPageSize, count)
 
   return { page, lastPage, offset, end, count }
 }

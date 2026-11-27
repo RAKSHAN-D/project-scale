@@ -18,17 +18,6 @@ export const residents: Resident[] = [
   { username: 'Divya', familyName: 'Naik', email: 'divya@example.com', location: 'Gandhinagar' },
 ]
 
-export const coldResidents: Resident[] = [
-  { username: 'Riya', familyName: 'Kamat', email: 'riya@example.com', location: 'Saptapur' },
-  { username: 'Naveen', familyName: 'Patil', email: 'naveen@example.com', location: 'Vidyagiri' },
-  { username: 'Asha', familyName: 'Joshi', email: 'asha@example.com', location: 'Srinagar' },
-  { username: 'Ishaan', familyName: 'Naik', email: 'ishaan@example.com', location: 'Gandhinagar' },
-  { username: 'Kavya', familyName: 'Desai', email: 'kavya@example.com', location: 'Saptapur' },
-  { username: 'Mohan', familyName: 'Rao', email: 'mohan@example.com', location: 'Vidyagiri' },
-  { username: 'Priya', familyName: 'Hegde', email: 'priya@example.com', location: 'Srinagar' },
-  { username: 'Rohan', familyName: 'Kulkarni', email: 'rohan@example.com', location: 'Gandhinagar' },
-]
-
 export function filterResidents(records: Resident[], search: string) {
   const query = search.trim().toLowerCase()
   return records.filter((resident) => Object.values(resident).some((value) => value.toLowerCase().includes(query)))

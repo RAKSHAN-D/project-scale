@@ -27,7 +27,31 @@ type CreateHotItemInput = {
   value: Record<string, string | boolean>
 }
 
+export type ColdDataSummary = {
+  userId: number
+  name: string
+  locality: string | null
+  highestQualification: string | null
+  recordedFamilyMembers: number | null
+}
+
+type ColdDataSummaryPage = {
+  records: ColdDataSummary[]
+  page: number
+  size: number
+  total: number
+}
+
+export type ColdItem = {
+  id: number
+  userId: number
+  type: string
+  createdAt: string
+  data: Record<string, unknown> | null
+}
+
 type AdminReadPath = '/api/users' | `/api/users/${number}` | '/api/hot-data' | `/api/hot-data/user/${number}`
+  | `/api/cold-data/summary?${string}` | `/api/cold-data/user/${number}`
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -42,6 +66,19 @@ function isHotItem(value: unknown): value is HotItem {
   return isRecord(value) && Number.isSafeInteger(value.id) && Number.isSafeInteger(value.userId)
     && typeof value.itemKey === 'string' && typeof value.updatedAt === 'string'
     && (value.value === null || isRecord(value.value))
+}
+
+function isColdDataSummary(value: unknown): value is ColdDataSummary {
+  return isRecord(value) && Number.isSafeInteger(value.userId) && typeof value.name === 'string'
+    && (value.locality === null || typeof value.locality === 'string')
+    && (value.highestQualification === null || typeof value.highestQualification === 'string')
+    && (value.recordedFamilyMembers === null || Number.isSafeInteger(value.recordedFamilyMembers))
+}
+
+function isColdItem(value: unknown): value is ColdItem {
+  return isRecord(value) && Number.isSafeInteger(value.id) && Number.isSafeInteger(value.userId)
+    && typeof value.type === 'string' && typeof value.createdAt === 'string'
+    && (value.data === null || isRecord(value.data))
 }
 
 function adminHeaders() {
@@ -133,6 +170,27 @@ export async function getHotItemsForUser(userId: number, signal: AbortSignal) {
   if (response.status === 404) return []
   const items = await readAdminList(response, isHotItem)
   return items.sort((first, second) => first.id - second.id)
+}
+
+export async function getColdDataSummaries(page: number, size: number, search: string, signal: AbortSignal): Promise<ColdDataSummaryPage> {
+  const params = new URLSearchParams({ page: String(page), size: String(size), search })
+  const response = await getAdminResponse(`/api/cold-data/summary?${params}`, signal)
+  if (!response.ok) throw new Error('Could not load cold data summaries from the backend.')
+
+  const data: unknown = await response.json().catch(() => null)
+  if (!isRecord(data) || data.page !== page || data.size !== size
+    || typeof data.total !== 'number' || !Number.isSafeInteger(data.total) || data.total < 0
+    || !Array.isArray(data.records) || !data.records.every(isColdDataSummary)) {
+    throw new Error('The backend returned an unexpected cold data summary.')
+  }
+
+  return { records: data.records, page, size, total: data.total }
+}
+
+export async function getColdItemsForUser(userId: number, signal: AbortSignal) {
+  const response = await getAdminResponse(`/api/cold-data/user/${userId}`, signal)
+  if (response.status === 404) return []
+  return readAdminList(response, isColdItem)
 }
 
 export async function createHotItem(input: CreateHotItemInput) {

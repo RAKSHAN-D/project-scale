@@ -1,96 +1,97 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useCallback, useState, type FormEvent } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
-import AdminPagination, { getAdminPage } from './AdminPagination'
-import AdminResidentTable from './AdminResidentTable'
-import { coldResidents, filterResidents, residentFields, type Resident } from './adminResidents'
+import { getColdDataSummaries } from '../../services/adminData'
+import AdminColdDataDetails from './AdminColdDataDetails'
+import AdminPagination, { adminPageSize, getAdminPage } from './AdminPagination'
+import AdminRecordTable from './AdminRecordTable'
+import { useAdminRequest } from './useAdminRecords'
 import '../../styles/admin-data.css'
 
+const fields = [
+  { name: 'userId', label: 'User ID' },
+  { name: 'name', label: 'Name' },
+  { name: 'locality', label: 'Locality / City' },
+  { name: 'highestQualification', label: 'Highest qualification' },
+  { name: 'recordedFamilyMembers', label: 'Recorded family members' },
+] as const
+
 function AdminDataPage() {
-  const [records, setRecords] = useState(coldResidents)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const [addError, setAddError] = useState('')
-  const addDialog = useRef<HTMLDialogElement>(null)
-  const filteredResidents = filterResidents(records, search)
-  const pagination = getAdminPage(filteredResidents.length, page)
 
-  function updateSearch(value: string) {
-    setSearch(value)
+  const loadSummary = useCallback(async (signal: AbortSignal) => {
+    const result = await getColdDataSummaries(page - 1, adminPageSize, search, signal)
+    const currentPage = getAdminPage(result.total, page).page
+    return currentPage === page ? result : getColdDataSummaries(currentPage - 1, adminPageSize, search, signal)
+  }, [page, search])
+  const { state, retry } = useAdminRequest(loadSummary)
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const nextSearch = String(new FormData(event.currentTarget).get('search') ?? '').trim()
+    if (nextSearch === search && page === 1) retry()
+    setSearch(nextSearch)
     setPage(1)
   }
 
   function toggleSearch() {
-    if (searchOpen) updateSearch('')
+    if (searchOpen && search) {
+      setSearch('')
+      setPage(1)
+    }
     setSearchOpen(!searchOpen)
-  }
-
-  function addResident(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const form = event.currentTarget
-    const fields = new FormData(form)
-    const resident = Object.fromEntries(residentFields.map(({ name }) => [name, String(fields.get(name) ?? '').trim()])) as Resident
-
-    if (residentFields.some(({ name }) => !resident[name])) {
-      setAddError('Complete all four fields.')
-      return
-    }
-
-    if (records.some(({ email }) => email.toLowerCase() === resident.email.toLowerCase())) {
-      setAddError('A resident with this email already exists in this list.')
-      return
-    }
-
-    setRecords((previous) => [resident, ...previous])
-    updateSearch('')
-    form.reset()
-    addDialog.current?.close()
   }
 
   return (
     <AdminLayout section="cold">
       <div className="admin-dashboard__content admin-data">
         <header className="admin-dashboard__header admin-data__header">
-          <h1 id="admin-data-title">Cold-Data Module</h1>
+          <h1 id="cold-data-heading">Cold-Data Module</h1>
           <div className="admin-data__actions">
             {searchOpen && (
-              <input
-                type="search"
-                aria-label="Search residents"
-                placeholder="Search ..."
-                value={search}
-                onChange={(event) => updateSearch(event.target.value)}
-                autoFocus
-              />
+              <form id="cold-data-search" className="admin-data__id-search" onSubmit={submitSearch}>
+                <input type="search" name="search" aria-label="User ID or name" placeholder="User ID or name" defaultValue={search} autoFocus />
+                <button className="admin-dashboard__pill" type="submit">Search</button>
+              </form>
             )}
-            <button type="button" aria-label="Add sample resident" onClick={() => addDialog.current?.showModal()}>
-              <span aria-hidden="true">+</span>
-            </button>
-            <button type="button" aria-label={searchOpen ? 'Close search' : 'Search residents'} aria-expanded={searchOpen} onClick={toggleSearch}>
+            <button type="button" aria-label={searchOpen ? 'Close search' : 'Search cold data'} aria-expanded={searchOpen} aria-controls={searchOpen ? 'cold-data-search' : undefined} onClick={toggleSearch}>
               <span className="admin-data__search-icon" aria-hidden="true" />
             </button>
           </div>
         </header>
 
-        <section className="admin-data__records" aria-labelledby="admin-data-title">
-          <AdminResidentTable residents={filteredResidents.slice(pagination.offset, pagination.end)} labelledBy="admin-data-title" />
-          <AdminPagination pagination={pagination} recordLabel="users" onPageChange={setPage} />
+        <section className="admin-data__records" aria-labelledby="cold-data-heading">
+          {state.status === 'loading' && <p role="status">Loading cold data summaries…</p>}
+          {state.status === 'error' && (
+            <div>
+              <p role="alert">{state.message}</p>
+              <button className="admin-dashboard__pill" type="button" onClick={retry}>Try again</button>
+            </div>
+          )}
+          {state.status === 'ready' && (
+            <>
+              <AdminRecordTable
+                records={state.data.records.map((record) => ({
+                  ...record,
+                  locality: record.locality ?? 'Not provided',
+                  highestQualification: record.highestQualification ?? 'Not provided',
+                  recordedFamilyMembers: record.recordedFamilyMembers ?? 'Not provided',
+                }))}
+                fields={fields}
+                labelledBy="cold-data-heading"
+                detailsTitle={(record) => `Cold Data — ${record.name}`}
+                emptyMessage={search ? 'No users with cold data match your search.' : 'No users have cold data yet.'}
+                recordKey={(record) => record.userId}
+                recordLabel={(record) => record.name}
+                showSummaryInDetails={false}
+                renderDetails={(record) => <AdminColdDataDetails key={record.userId} userId={record.userId} />}
+              />
+              <AdminPagination pagination={getAdminPage(state.data.total, state.data.page + 1)} recordLabel="users" onPageChange={setPage} />
+            </>
+          )}
         </section>
       </div>
-
-      <dialog ref={addDialog} className="admin-dashboard__details" aria-labelledby="add-resident-title" onClose={() => setAddError('')}>
-        <h2 id="add-resident-title">Add sample resident</h2>
-        <form className="admin-data__add-form" method="post" onSubmit={addResident}>
-          {residentFields.map(({ name, label }) => (
-            <label key={name}>{label}<input name={name} type={name === 'email' ? 'email' : 'text'} required /></label>
-          ))}
-          {addError && <p role="alert">{addError}</p>}
-          <div className="admin-data__form-actions">
-            <button className="admin-dashboard__pill" type="button" onClick={() => addDialog.current?.close()}>Cancel</button>
-            <button className="admin-dashboard__pill" type="submit">Add resident</button>
-          </div>
-        </form>
-      </dialog>
     </AdminLayout>
   )
 }
