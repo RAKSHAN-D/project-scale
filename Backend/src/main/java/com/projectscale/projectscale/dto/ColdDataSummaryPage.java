@@ -1,3 +1,4 @@
+// Adding the cold data summary page record to hold the data for the cold data summary page
 package com.projectscale.projectscale.dto;
 
 import java.util.List;
